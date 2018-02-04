@@ -1,0 +1,307 @@
+#+TITLE: 链式线性表
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 描述
+   这是一个线性表的实现，使用的是双向链式的方式
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+
+    #define TRUE	1
+    #define FALSE	0
+    #define OK	1
+    #define ERROR	0
+    #define INFESIBLE	-1
+    #define OVERFLOW	-2
+
+    typedef int Status;
+    typedef int ElemType;
+
+    /*定义链表结点*/
+    typedef struct Node {
+      ElemType data;
+      struct Node *prior;
+      struct Node *next;
+    } LinkNode;
+
+    /*定义链表*/
+    typedef struct {
+      LinkNode *head;
+      int length;
+    } LinkList;
+
+
+    Status InitList(LinkList * pL);	//初始化
+    Status DestroyList(LinkList * pL);	//删除线性表
+    Status ClearList(LinkList * pL);	//将线性表置为空表
+    Status ListEmpty(LinkList L);	//检验线性表是否为空
+    int ListLength(LinkList L);	//得到线性表长度
+    Status GetElem(LinkList L, int i, LinkNode * pe);	//得到第 i 个线性表元素
+
+    int LocateElem(LinkList L, LinkNode e,
+                   Status(*compare) (LinkNode search, LinkNode test));
+    /*返回与 e 相等的结点的位置,如果无则返回 0
+     * 对于 compare 函数，第一个参数 search 是要查找的值
+     * 第二个参数 test 是来回替换的值，假如返回 OK，则输出
+     * 否则，继续往下循环*/
+
+    Status PriorElem(LinkList L, LinkNode e, LinkNode * pe_pre);
+    /*找到元素的前驱，让 pe_pre 指向前驱 */
+
+    Status NextElem(LinkList L, LinkNode e, LinkNode * pe_next);
+    /*找到元素的后继，让 pe_next 指向后继 */
+
+    Status ListInsert(LinkList * pL, int i, LinkNode e);	//插入元素
+
+    Status ListDelete(LinkList * pL, int i, LinkNode * pe);
+    /*删除结点,并将指针 pe 指向删除结点 */
+
+    Status ListTraverse(LinkList L, Status(*visit) (LinkNode e));
+    /*通过 visit 函数遍历线性表 */
+
+    Status print(LinkNode e)
+    {
+      printf("%d\n", e.data);
+      return OK;
+    }
+
+    Status equals(LinkNode a, LinkNode b)
+    {
+      if (a.data == b.data)
+        return TRUE;
+      else
+        return FALSE;
+    }
+
+    int main(int argc, char **argv)
+    {
+
+      LinkList L;
+      InitList(&L);
+      LinkNode e;
+      int j;
+      for (j = 1; j < 10; j++) {
+        e.data = j;
+        ListInsert(&L, j, e);
+      }
+      ListTraverse(L, print);
+      return 0;
+    }
+
+    Status InitList(LinkList * pL)
+    {
+      pL->head = malloc(sizeof(LinkNode));
+      if (pL->head == NULL)
+        exit(OVERFLOW);
+
+      pL->length = 0;
+      pL->head->prior = NULL;
+      pL->head->next = NULL;
+
+      return OK;
+    }
+
+    Status DestroyList(LinkList * pL)
+    {
+      /*pe2 从前往后遍历整个链表
+       *pe1 指向 pe2 前的结点并删除*/
+      LinkNode *pe1 = pL->head;
+      LinkNode *pe2 = pe1;
+
+      while (pe2) {
+        pe2 = pe2->next;
+        free(pe1);
+        pe1 = pe2;
+      }
+
+      pL->head = NULL;
+      pL->length = 0;
+
+      return OK;
+    }
+
+    Status ClearList(LinkList * pL)
+    {
+      /*pe2 从前往后遍历整个链表
+       *pe1 指向 pe2 前的结点并删除
+       *与删除链表的差别是 pe1 初始化位置不同，删除链表 pe1 是头结点，
+       *清空链表 pe1 是第一个结点*/
+      LinkNode *pe1 = pL->head->next;
+      LinkNode *pe2 = pe1;
+
+      while (pe2) {
+        pe2 = pe2->next;
+        free(pe1);
+        pe1 = pe2;
+      }
+
+      pL->head->next = NULL;
+      pL->length = 1;
+
+      return OK;
+    }
+
+    Status ListEmpty(LinkList L)
+    {
+      if (L.length == 0)
+        return TRUE;
+      else
+        return FALSE;
+    }
+
+    int ListLength(LinkList L)
+    {
+      return L.length;
+    }
+
+    Status GetElem(LinkList L, int i, LinkNode * pe)
+    {
+      if (i < 1 || i > L.length)
+        return ERROR;
+
+      LinkNode *ptest = L.head;
+      int j = 0;
+      for (; j < i; j++)
+        ptest = ptest->next;
+
+      *pe = *ptest;
+
+      return OK;
+    }
+
+    int LocateElem(LinkList L, LinkNode e,
+                   Status(*compare) (LinkNode search, LinkNode test))
+    {
+      LinkNode *pe = L.head;
+      int count = 0;
+      while (pe = pe->next) {
+
+        count++;
+
+        if (compare(*pe, e))
+          return count;
+      }
+
+      return 0;
+    }
+
+    Status PriorElem(LinkList L, LinkNode e, LinkNode * pe_pre)
+    {
+      LinkNode *pe = L.head;
+
+      /*flag 是标志位，如果为 1，则找到相等，否则，则不相等 */
+      int flag = 0;
+
+      while (pe = pe->next) {
+        if (pe->data == e.data) {
+          flag = 1;
+          break;
+        }
+      }
+      if (flag == 0 || pe->prior == L.head)
+        return ERROR;
+      *pe_pre = *pe->prior;
+
+      return OK;
+    }
+
+    Status NextElem(LinkList L, LinkNode e, LinkNode * pe_next)
+    {
+      LinkNode *pe = L.head;
+
+      /*flag 是标志位，如果为 1，则找到相等，否则，则不相等 */
+      int flag = 0;
+
+      while (pe = pe->next) {
+        if (pe->data == e.data) {
+          flag = 1;
+          break;
+        }
+      }
+      if (flag == 0 || pe->next == NULL)
+        return ERROR;
+      *pe_next = *pe->next;
+
+      return OK;
+    }
+
+    Status ListInsert(LinkList * pL, int i, LinkNode e)
+    {
+      if (i < 1 || i > pL->length + 1)
+        return ERROR;
+
+      LinkNode *new = malloc(sizeof(LinkNode));
+      if (new == NULL)
+        exit(OVERFLOW);
+
+      *new = e;
+      LinkNode *pe = pL->head;
+      int j;
+
+      /*for 循环之后 pe 指向插入位置的前一个位置 */
+      for (j = 1; j < i; j++)
+        pe = pe->next;
+
+      /*判断 pe 指向的是不是最后一个结点 */
+      if (pe->next == NULL) {
+        pe->next = new;
+        new->prior = pe;
+        new->next = NULL;
+      } else {
+        new->next = pe->next;
+        new->prior = pe;
+        pe->next = new;
+        new->next->prior = new;
+      }
+
+      pL->length++;
+
+      return OK;
+    }
+
+    Status ListDelete(LinkList * pL, int i, LinkNode * pe)
+    {
+      if (i < 1 || i > pL->length)
+        return ERROR;
+
+      pe = pL->head;
+      int j;
+
+      /*for 循环后，pe 指向要删除的结点 */
+      for (j = 0; j < i; j++)
+        pe = pe->next;
+
+      if (pe->next == NULL) {
+        pe->prior->next = NULL;
+
+      } else {
+        pe->next->prior = pe->prior;
+        pe->prior->next = pe->next;
+      }
+      pL->length--;
+
+      return OK;
+    }
+
+    Status ListTraverse(LinkList L, Status(*visit) (LinkNode e))
+    {
+      LinkNode *pe = L.head;
+      while (pe = pe->next) {
+
+        if (!visit(*pe))
+          return ERROR;
+      }
+
+      return OK;
+    }
+
+  #+END_SRC

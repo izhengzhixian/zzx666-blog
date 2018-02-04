@@ -1,0 +1,32 @@
+#+TITLE: C 语言 inline 关键字分析
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: program, C
+#+CATEGORIES: program, C
+
+* C 语言 inline 关键字分析
+  就我现在已知的，inline 这方面有点乱，比如 gnu90 与 gnu99 就不同。
+  好像 gnu99 以后开始遵循 c99 了，唯一不变的是 static inline，所以以后写代码尽量只用这个。
+  c99 标准中 inline 关键字只能修饰函数定义，不能修饰函数声明。
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+** gnu90
+   1. static inline
+   2. 只对本文件可见，视需求生成函数汇编代码，
+      (在使用函数指针时，并且不能优化成不使用函数地址的形式，或者递归时)
+      是 static 属性加上 inline 属性
+   3. inline
+      对所有文件可见，生成独立函数汇编代码，本文件内联，其他文件通过 call 访问
+   4. extern inline
+      只对本文件可见，不生成独立函数汇编代码，本文件使用函数时内联，本文件使用函数指针时，
+      保留这个符号，在链接阶段去链接别的文件的同名函数
+** c99
+   1. staic inline
+      同 gcc
+   2. inline
+      有点怪异，不建议用
+      差不多等同于 gnu90 extern inline
+   3. extern inline
+      差不多等同于 gnu90 inline

@@ -1,0 +1,14 @@
+#+TITLE: oracle
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: tools, oracle
+#+CATEGORIES: tools
+
+* oracle
+** error
+*** oracle client error
+    libclntsh.so.10.1 error
+
+    输入 locate libclntsh.so.10.1，获取绝对路径，把目录加入/etc/ld.so.conf 的最后一行，
+    然后执行 ldconfig

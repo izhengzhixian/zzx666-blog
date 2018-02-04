@@ -1,0 +1,89 @@
+#+TITLE:  django 出现问题解决方案
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: program, Python, django
+#+CATEGORIES: program, Python
+
+* settings.py 中设置数据库
+  假设项目名字叫做 tt
+  在 DATABASES 里设置
+  #+BEGIN_SRC python
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'testly',
+            'USER': 'root',
+            'PASSWORD': '123456789',
+            'HOST':'192.168.1.1',
+            'PORT':'3306',
+        }
+    }
+  #+END_SRC
+
+  Django 要求 default 数据库必须定义，但是如果不会用到，
+  其参数字典可以保留为空。若要这样做，
+  你必须为你的所有的应用的模型建立 DATABASE_ROUTERS，
+  包括正在使用的 contrib 中的应用和第三方应用。
+
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+
+  如果定义多个数据库，需要在 DATABASES 里按照上述格式定义多个。
+  在项目根目录新建一个文件，假设是 db_router.py
+  加入以下内容：
+
+  #+BEGIN_SRC python
+    class app02Router(object): #配置 app02 的路由，去连接 newdb 数据库
+          """
+          A router to control all database operations on models in the app02 application.
+          """
+          def db_for_read(self, model, **hints):
+                """
+                Attempts to read app02 models go to newdb DB.
+                """
+                if model._meta.app_label == 'app02': #app name（如果该 app 不存在，则无法同步成功）
+                      return 'newdb' #newdb 为 settings 中配置的 database 节点名称，并非 db name。dbname 为 testdjango
+                return None
+
+          def db_for_write(self, model, **hints):
+                """
+                Attempts to write app02 models go to newdb DB.
+                """
+                if model._meta.app_label == 'app02':
+                      return 'newdb'
+                return None
+
+          def allow_relation(self, obj1, obj2, **hints):
+                """
+                Allow relations if a model in the app02 app is involved.
+                当 obj1 和 obj2 之间允许有关系时返回 True，不允许时返回 False，或者没有 意见时返回 None。
+                """
+                if obj1._meta.app_label == 'app02' or \
+                   obj2._meta.app_label == 'app02':
+                      return True
+                return None
+
+          def allow_migrate(self, db, model):
+                """
+                Make sure the app02 app only appears in the newdb database.
+                """
+                if db == 'newdb':
+                      return model._meta.app_label == 'app02'
+                elif model._meta.app_label == 'app02':
+                      return False
+
+
+          def allow_syncdb(self, db, model): #决定 model 是否可以和 db 为别名的数据库同步
+                if db == 'newdb' or model._meta.app_label == "app02":
+                      return False  # we're not using syncdb on our newdb database
+                else:  # but all other models/databases are fine
+                      return True
+                return None
+
+  #+END_SRC
+
+  编辑 settings.py，添加路由：
+  DATABASE_ROUTERS = ['tt.db_router.app02Router','tt.db_router.app01Router']
+  #如果定义了多个 Router，在此就需要分别指定。注意：这个是有顺序的（先匹配上的规则，就先生效）

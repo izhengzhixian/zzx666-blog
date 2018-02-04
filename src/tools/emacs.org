@@ -1,0 +1,42 @@
+#+TITLE: emacs
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: tools, emacs
+#+CATEGORIES: tools
+
+* emacs
+** 启动慢分析
+*** 分析时间
+    emacs --timed-requires
+
+    进入后，转到*load-times* buffer
+*** 分析 cpu 和内存消耗
+    emacs --profile
+
+    也有相应的缓冲区
+*** 查看*Messages*
+    查找错误与警告
+
+** 一些需求
+*** Emacs 字节编译整个目录
+    Emacs 提供了另外一个命令 byte-recomplie-directory。通过这个命令以编译整个目录。
+
+    如果你发现直接使用是提示“编译 0 个文件”就是说没有合适的文件被编译。
+
+    执行 C-u 0 M-x byte-recompile-directory 才可以。
+
+    The C-u 0 part is to make it not ask about every .el file
+    that does not have a .elc counterpart.
+
+*** org-mode 显示的时间戳格式
+    #+BEGIN_SRC elisp
+      ;; linxu 操作系统设置成中文之后，时间戳总是显示的中文
+      ;; 用下面这个函数可以改成英文
+      ;; 时间显示用 C 的格式
+      (setq system-time-locale "C")
+
+      ;; 如果你觉得对显示格式不满意，可以手动定制显示格式
+      (setq org-display-custom-times t
+            org-time-stamp-custom-formats '("<%m-%d-%y %A>" . "<%m-%d-%y %A %H:%M>"))
+    #+END_SRC

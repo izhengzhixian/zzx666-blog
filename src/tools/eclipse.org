@@ -1,0 +1,28 @@
+#+TITLE: eclipse
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: tools, eclipse
+#+CATEGORIES: tools
+
+* viPlugin 安装破解
+** 说明
+   viPlugin 是一个 eclipse 针对 vi 的插件，使用此插件可以让你在使用 eclipse 进行编码时
+   使用几乎所有 vi 命令，可以极大的提高开发编码效率。
+** 安装
+   点击你的 eclipse 中的 help --> Install New Software... --> Add..  --> 添加网址 http://www.viplugin.com
+   点击 OK 后，将搜索出的 vi 插件选项选上后点击 Next，然后选择 Accept，最后点击 Finish。
+   安装完成后重启 Eclipse，重启后会提示找不到路径中的文件。这是因为此插件需要收费，可以破解。
+
+** 快速破解：
+      #+BEGIN_EXAMPLE
+        1. 在 eclipse 根目录下建立文件：viPlugin2.lic。并使用记事本打开，将以下字符串插入其中：
+
+          q1MHdGlxh7nCyn_FpHaVazxTdn1tajjeIABlcgJBc20
+
+          如果这个字符串不行的话，可以试试下面这个：
+
+          1MHdGlxh7nCyn_FpHaVazxTdn1tajjeIABlcgJBc20
+
+        2. 重启 eclipse viplugin 已经破解
+      #+END_EXAMPLE

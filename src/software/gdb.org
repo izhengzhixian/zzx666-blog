@@ -1,0 +1,17 @@
+#+TITLE: gdb
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: software, gdb
+#+CATEGORIES: software
+
+* gdb
+** gdb 前端
+   | 前端      | 评价                                |
+   |-----------+-------------------------------------|
+   | gdb --tui | 能够查看源码，不错                  |
+   | cgdb      | 源码中中文乱码，不显示              |
+   | ddd       | gui，界面比较古老                   |
+   | insight   | gui，界面不错                       |
+   | nemiver   | gui，类似于 windows 的 debug 快捷键 |
+   | emacs gdb | 完美，可定制                        |

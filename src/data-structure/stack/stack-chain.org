@@ -1,0 +1,192 @@
+#+TITLE: 链式栈
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 描述
+  - 这是一个栈的实现
+  - 使用的是双向非顺序线性表的方式
+  - 线性表的头部是栈顶，线性表的尾部是栈底
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+
+    #define TRUE	1
+    #define FALSE	0
+    #define OK	1
+    #define ERROR	0
+    #define INFESIBLE	-1
+    #define OVERFLOW	-2
+
+    typedef int Status;
+    typedef int ElemType;
+
+    /*定义栈结点*/
+    typedef struct Node {
+      ElemType data;
+      struct Node *prior;
+      struct Node *next;
+    } LinkNode;
+
+    /*定义栈*/
+    typedef struct {
+      LinkNode *head;
+      int length;
+    } Stack;
+
+    Status InitStack(Stack * pS);	//栈的初始化
+    Status DestroyStack(Stack * pS);	//删除栈
+    Status ClearStack(Stack * pS);	//清空栈
+    Status StackEmpty(Stack S);	//判断栈是否为空
+    int StackLength(Stack S);	//返回栈的长度
+    Status GetTop(Stack S, LinkNode * pe);	//得到栈顶元素
+    Status Push(Stack * pS, LinkNode e);	//插入元素 e 为新的栈顶元素
+    Status Pop(Stack * pS, LinkNode * pe);	//删除栈顶元素，并用 pe 返回
+
+    Status StackTraverse(Stack S, Status(*visit) (LinkNode e));
+    /*从栈底到栈顶依次对 S 的每个数据元素调用函数 visit,
+     * 如果函数返回 ERROR，则遍历失败。*/
+
+    int main(int argc, char **argv)
+    {
+
+
+      return 0;
+    }
+
+
+    Status InitStack(Stack * pS)
+    {
+      pS->head = malloc(sizeof(LinkNode));
+      if (pS->head == NULL)
+        exit(OVERFLOW);
+
+      pS->length = 0;
+      pS->head->prior = NULL;
+      pS->head->next = NULL;
+
+      return OK;
+    }
+
+    Status DestroyStack(Stack * pS)
+    {
+      /*pe2 从前往后遍历整个栈
+       *pe1 指向 pe2 前的结点并删除*/
+      LinkNode *pe1 = pS->head;
+      LinkNode *pe2 = pe1;
+
+      while (pe2) {
+        pe2 = pe2->next;
+        free(pe1);
+        pe1 = pe2;
+      }
+
+      pS->head = NULL;
+      pS->length = 0;
+
+      return OK;
+    }
+
+    Status ClearStack(Stack * pS)
+    {
+      /*pe2 从前往后遍历整个栈
+       *pe1 指向 pe2 前的结点并删除
+       *与删除栈的差别是 pe1 初始化位置不同，删除栈 pe1 是头结点，
+       *清空栈 pe1 是第一个结点*/
+      LinkNode *pe1 = pS->head->next;
+      LinkNode *pe2 = pe1;
+
+      while (pe2) {
+        pe2 = pe2->next;
+        free(pe1);
+        pe1 = pe2;
+      }
+
+      pS->head->next = NULL;
+      pS->length = 0;
+
+      return OK;
+    }
+
+    Status StackEmpty(Stack S)
+    {
+      if (S.length == 0)
+        return TRUE;
+      return FALSE;
+    }
+
+    int StackLength(Stack S)
+    {
+      return S.length;
+    }
+
+    Status GetTop(Stack S, LinkNode * pe)
+    {
+      if (S.head->next == NULL)
+        return ERROR;
+
+      *pe = *S.head->next;
+      return OK;
+    }
+
+    Status Push(Stack * pS, LinkNode e)
+    {
+      LinkNode *new = malloc(sizeof(LinkNode));
+      if (new == NULL)
+        exit(OVERFLOW);
+      *new = e;
+      if (pS->head->next == NULL) {
+        new->prior = pS->head;
+        new->next = NULL;
+        pS->head->next = new;
+      } else {
+        new->prior = pS->head;
+        new->next = pS->head->next;
+        new->next->prior = new;
+        pS->head->next = new;
+      }
+      pS->length++;
+
+      return OK;
+    }
+
+    Status Pop(Stack * pS, LinkNode * pe)
+    {
+      if (pS->head->next == NULL)
+        return ERROR;
+      LinkNode *trash = pS->head->next;
+      *pe = *trash;
+
+      pS->head->next = trash->next;
+      if (trash->next != NULL)
+        trash->next->prior = pS->head;
+
+      free(trash);
+      pS->length--;
+    }
+
+    Status StackTraverse(Stack S, Status(*visit) (LinkNode e))
+    {
+      LinkNode *pe = S.head;
+
+      while (pe->next != NULL)
+        pe = pe->next;
+
+      while (pe->prior != NULL) {
+
+        if (!visit(*pe))
+          return ERROR;
+        pe = pe->prior;
+      }
+
+      return OK;
+    }
+
+  #+END_SRC

@@ -1,0 +1,39 @@
+#+TITLE: 数据结构实现代码目录
+#+DATE: <2018-02-04 Sun>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: data-structure, C
+#+CATEGORIES: data-structure
+* 介绍
+  这个位置放的是数据结构的相关代码
+
+  #+BEGIN_EXPORT html
+  <!--more-->
+  #+END_EXPORT
+
+* 线性表
+  1) [[file:list/list-order.org][顺序线性表]]
+  2) [[file:list/list-chain.org][链式线性表]]
+* 栈
+  1) [[file:stack/stack-order.org][顺序栈]]
+  2) [[file:stack/stack-chain.org][链式栈]]
+* 队列
+  1) [[file:queue/queue-order.org][顺序队列]]
+  2) [[file:queue/queue-chain.org][链式队列]]
+* 串
+  1) [[file:string/string-order.org][串的实现]]
+  2) [[file:string/string-arr.org][KMP 算法]]
+  3) [[file:string/string-arr-next.org][KMP 改进算法]]
+* 树
+  1) [[file:tree/bitree.org][二叉树的生成]]
+* 图
+  1) [[file:graph/graph.org][图的生成与遍历(DFS,BFS)]]
+  2) [[file:graph/dijkstra.org][最短路径(dijkstra)]]
+  3) [[file:graph/minTree.org][最小生成树(Kraskal,Prim)]]
+* 排序
+  1) [[file:sort/direct-insert.org][直接插入排序]]
+  2) [[file:sort/bubble-sort.org][冒泡排序]]
+  3) [[file:sort/fast-sort.org][快速排序]]
+  4) [[file:sort/select-sort.org][选择排序]]
+* 查找
+  1) [[file:search/search-half.org][二分查找]]

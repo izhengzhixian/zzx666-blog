@@ -1,0 +1,43 @@
+#+TITLE: 二分查找
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+    int main(int argc, char **argv)
+    {
+      int n;
+      scanf("%d",&n);
+      int *p=malloc( (n+1)*sizeof(int));
+      int i;
+      for(i=1;i<=n;i++)
+        scanf("%d",p+i);
+      scanf("%d",p);
+      int start=1;
+      int end=n;
+      int mid;
+      int pos=0;
+      while(end>=start){
+        mid=(start+end)/2;
+        if(p[mid]==*p){
+          pos=mid;
+          break;
+        }else if(p[mid]<*p){
+          start=mid+1;
+        }else{
+          end=mid-1;
+        }
+      }
+
+      printf("%d",pos);
+
+      return 0;
+    }
+
+  #+END_SRC

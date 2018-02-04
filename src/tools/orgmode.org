@@ -1,0 +1,57 @@
+#+TITLE: orgmode
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: tools, orgmode
+#+CATEGORIES: tools
+
+* orgmode 教程
+** 支持的编程语言
+   | 语言       | 标识符     | 语言           | 标识符   |
+   |------------+------------+----------------+----------|
+   | Asymptote  | asymptote  | MATLAB         | matlab   |
+   | Awk        | awk        | Mscgen         | mscgen   |
+   | Emacs Calc | calc       | Objective Caml | ocaml    |
+   | C          | C          | Octave         | octave   |
+   | C++        | C++        | Org mode       | org      |
+   | Clojure    | clojure    | Oz             | oz       |
+   | CSS        | css        | Perl           | perl     |
+   | ditaa      | ditta      | Plantuml       | plantuml |
+   | Graphviz   | dot        | Python         | python   |
+   | Emacs Lisp | emacs-lisp | R              | R        |
+   | gnuplot    | gnuplot    | Ruby           | ruby     |
+   | Haskell    | haskell    | Sass           | sass     |
+   | Java       | java       | Scheme         | scheme   |
+   | Javascript | js         | GNU Screen     | screen   |
+   | LaTeX      | latex      | shell          | sh       |
+   | Ledger     | ledger     | SQL            | sql      |
+   | Lisp       | lisp       | SQLite         | sqlite   |
+   | Lilypond   | lilypond   |                |          |
+
+** 重要的快捷键
+   | 功能               | 快捷键             |
+   |--------------------+--------------------|
+   | C-c .              | 输入 date          |
+   | C-u C-c .          | 输入 date + time   |
+   | C-u M-! date <RET> | 获取外部命令的输出 |
+
+   #+BEGIN_EXPORT html
+    <!--more-->
+   #+END_EXPORT
+** org-html-postamble
+
+   #+BEGIN_SRC elisp
+     (setq org-html-postamble "Your postamble here")
+   #+END_SRC
+
+   #+CAPTION: org-html-postamble 格式控制符
+   | 格式控制符  | 解释                                            |
+   |--------------+-------------------------------------------------|
+   | %t           | stands for the title.                           |
+   | %a           | stands for the author's name.                   |
+   | %e           | stands for the author's email.                  |
+   | %d           | stands for the date.                            |
+   | %c           | will be replaced by `org-html-creator-string'.  |
+   | %v           | will be replaced by `org-html-validation-link'. |
+   | %T           | will be replaced by the export time.            |
+   | %C           | will be replaced by the last modification time. |

@@ -1,0 +1,41 @@
+#+TITLE: 冒泡排序
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 代码
+  #+BEGIN_SRC C
+    #include<stdio.h>
+    #include<stdlib.h>
+    int main(int argc, char **argv)
+    {
+      int n;
+      scanf("%d",&n);
+      int *p=malloc( (n+1)*sizeof(int));
+      int i;
+      int j;
+      int test;
+      for(i=1;i<=n;i++)
+        scanf("%d",p+i);
+      for(i=1;i<n-1;i++)
+        for(j=1; j<=n-i; j++){
+
+          if(p[j]>p[j+1]){
+            test=p[j];
+            p[j]=p[j+1];
+            p[j+1]=test;
+          }
+
+        }
+
+      for(i=1;i<=n;i++){
+        printf("%d",p[i]);
+        if(i!=n)
+          printf(" ");
+      }
+      free(p);
+      return 0;
+    }
+  #+END_SRC

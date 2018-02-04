@@ -1,0 +1,175 @@
+#+TITLE: 链式队列
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 描述
+  - 这是一个队列的实现
+  - 使用的是双向链式线性表的方式
+  - 线性表的尾部是队尾，线性表的头部是队头
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+
+    #define TRUE	1
+    #define FALSE	0
+    #define OK	1
+    #define ERROR	0
+    #define INFESIBLE	-1
+    #define OVERFLOW	-2
+    typedef int Status;
+    typedef int ElemType;
+
+    /*定义队列结点*/
+    typedef struct Node {
+      ElemType data;
+      struct Node *prior;
+      struct Node *next;
+    } LinkNode;
+
+    /*定义队列*/
+    typedef struct {
+      LinkNode *head;
+      LinkNode *end;
+      int length;
+    } Queue;
+    Status InitQueue(Queue * pQ);	//初始化队列
+    Status DestroyQueue(Queue * pQ);	//删除队列
+    Status ClearQueue(Queue * pQ);	//清空队列
+    Status QueueEmpey(Queue Q);	//判断队列 Q 是否为空
+    Status QueueLength(Queue Q);	//返回队列 Q 的长度
+    Status GetHead(Queue Q, LinkNode * pe);	//用 e 返回队头结点
+    Status EnQueue(Queue * pQ, LinkNode e);	//插入结点 e 为新的队尾结点
+    Status DeQueue(Queue * pQ, LinkNode * pe);	//删除队头结点，并指针 pe 返回结点
+    Status QueueTraverse(Queue Q, Status(*visit) (LinkNode e));
+
+    /* 从队头到队尾，依次调用 visit，如果返回 ERROR，则操作失败 */
+    int main(int argc, char **argv)
+    {
+      return 0;
+    }
+
+    Status InitQueue(Queue * pQ)
+    {
+      pQ->head = malloc(sizeof(LinkNode));
+      if (pQ->head == NULL)
+        exit(OVERFLOW);
+      pQ->length = 0;
+      pQ->head->prior = NULL;
+      pQ->head->next = NULL;
+      pQ->end = pQ->head;
+      return OK;
+    }
+
+    Status DestroyQueue(Queue * pQ)
+    {
+
+      /*pe2 从前往后遍历整个队列
+       *pe1 指向 pe2 前的结点并删除*/
+      LinkNode *pe1 = pQ->head;
+      LinkNode *pe2 = pe1;
+      while (pe2) {
+        pe2 = pe2->next;
+        free(pe1);
+        pe1 = pe2;
+      }
+      pQ->head = NULL;
+      pQ->end = NULL;
+      pQ->length = 0;
+      return OK;
+    }
+
+    Status ClearQueue(Queue * pQ)
+    {
+
+      /*pe2 从前往后遍历整个队列
+       *pe1 指向 pe2 前的结点并删除
+       *与删除队列的差别是 pe1 初始化位置不同，删除队列 pe1 是头结点，
+       *清空队列 pe1 是第一个结点*/
+      LinkNode *pe1 = pQ->head->next;
+      LinkNode *pe2 = pe1;
+      while (pe2) {
+        pe2 = pe2->next;
+        free(pe1);
+        pe1 = pe2;
+      }
+      pQ->length = 0;
+      pQ->head->next = NULL;
+      pQ->end = pQ->head;
+      return OK;
+    }
+
+    Status QueueEmpey(Queue Q)
+    {
+      if (Q.length == 0)
+        return TRUE;
+      return FALSE;
+    }
+
+    Status QueueLength(Queue Q)
+    {
+      return Q.length;
+    }
+
+    Status GetHead(Queue Q, LinkNode * pe)
+    {
+      if (Q.head->next == NULL)
+        return ERROR;
+      *pe = *Q.head->next;
+      return OK;
+    }
+
+    Status EnQueue(Queue * pQ, LinkNode e)
+    {
+      LinkNode *new = malloc(sizeof(LinkNode));
+      if (new = NULL)
+        exit(OVERFLOW);
+      *new = e;
+      pQ->end->next = new;
+      new->next = NULL;
+      new->prior = pQ->end;
+      pQ->end = new;
+      pQ->length++;
+      return OK;
+    }
+
+    Status DeQueue(Queue * pQ, LinkNode * pe)
+    {
+      if (pQ->length == 0)
+        return ERROR;
+
+      BiTNode *ptest = *pQ->head->next;
+      *pe=*ptest;
+      if (pQ->length == 1) {
+        ptest->prior->next = NULL;
+        pQ->end = pQ->head;
+        pQ->length--;
+        free(ptest);
+        return OK;
+      }
+      ptest->prior->next = ptest->next;
+      ptest->next->prior = ptest->prior;
+      pQ->length--;
+      free(ptest);
+      return OK;
+    }
+
+    Status QueueTraverse(Queue Q, Status(*visit) (LinkNode e))
+    {
+      LinkNode *pe = Q.head;
+      while (pe = pe->next) {
+        if (!visit(*pe))
+          return ERROR;
+      }
+      return OK;
+    }
+
+  #+END_SRC

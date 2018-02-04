@@ -1,0 +1,18 @@
+#+TITLE: nginx
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: tools, nginx
+#+CATEGORIES: tools
+
+* nginx
+** uwsgi 与 nginx
+   server 里加入以下内容：
+   #+BEGIN_SRC nginx
+     location ~* /uwsgi(.*) {
+         include uwsgi_params;
+         uwsgi_param REQUEST_URI $1;
+         uwsgi_param PATH_INFO   $1;
+         uwsgi_pass 127.0.0.1:9090;
+     }
+   #+END_SRC

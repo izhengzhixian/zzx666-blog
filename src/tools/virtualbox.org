@@ -1,0 +1,57 @@
+#+TITLE: virtualbox
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: tools, virtualbox
+#+CATEGORIES: tools
+
+* virtualbox
+** 安装目的物理磁盘已存在的系统
+   #+BEGIN_SRC sh
+     sudo vboxmanage internalcommands createrawvmdk -filename /home/love/rawdisk.vmdk -rawdisk /dev/sda -relative
+     附 VBoxManage internalcommands createrawvmdk 命令：
+     VBoxManage internalcommands createrawvmdk  创建一个 vmdk 格式的硬盘
+     -filename <filename> vmdk 格式的硬盘所对应的 vmdk 文件
+     -rawdisk <diskname>  vmdk 文件所对应的物理硬盘
+     [-partitions <list of partition numbers>  vmdk 文件对应的物理硬盘的分区
+      [-mbr <filename>] ] 将这个文件包含的引导记录写到 vmdk 文件
+     [-register] 将这个新创建的硬盘注册到 virtualbox
+     [-relative] 激活这个新创建的硬盘的分区
+     挂载虚拟磁盘 vdi，vmdk 到主机
+     因为 nbd 模块默认是不开启的，所以需要先用
+     // sudo modprobe nbd 启用 nbd 模块
+     某些版本的 linux 不加 max_part 参数会导致没有没有设备节点 /dev/nbd0p{1,2,3,4…} 等. 用 kpartx 也不行.
+     所以 sudo modprobe nbd max_part=8
+     然后 sudo qemu-nbd -c /dev/nbd0 name.vmdk
+     然后就可以 sudo mount /dev/nbd0p1 /media
+     断开时需要 sudo umount /dev/nbdp1 && sudo qemu-nbd -d /dev/nbd0
+   #+END_SRC
+   #+BEGIN_EXPORT html
+    <!--more-->
+   #+END_EXPORT
+** error
+*** Kernel driver not installed (rc=-1908)
+**** 方案 1
+     可以先尝试（成功,安装是 kernel 部分要与内核版本对应）：
+
+     $su yum install -y kernel-headers kernel-devel dkms gcc
+
+     $su yum -y update
+
+     接着运行/etc/init.d/vboxdrv setup
+
+     如果执行此操作，仍然出现上述错误。可以参考第二步执行
+**** 方案 2
+     先 安装 PAE 包， $ yum install kernel-PAE-devel。
+
+     完成后再执行 $ /etc/init.d/vboxdrv setup，则显示：
+
+     Stopping VirtualBox kernel modules [确定]
+
+     Uninstalling old VirtualBox DKMS kernel modules [确定]
+
+     Trying to register the VirtualBox kernel modules usingDKMS[确定]
+
+     Starting VirtualBox kernel modules [确定]
+
+     运行成功后，虚拟机可以运行成功！

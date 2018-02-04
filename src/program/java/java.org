@@ -1,0 +1,542 @@
+#+TITLE: Java 语言基本知识点
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: program, Java
+#+CATEGORIES: program, Java
+
+* 基本数据类型
+** 逻辑类型
+   boolean=true;值为 true 或 false，字节未知
+** 整数类型
+   #+BEGIN_SRC java
+
+     //123(十进制)，077(八进制)，0x3ABC(十六进制)
+     int x=12;    //四字节
+     byte x=12;   //一字节
+     short x=12;  //二字节
+     long x=100L; //八字节，数字后面需要加 L
+     //Java 没有无符号整数类型
+
+   #+END_SRC
+** 字符类型
+   char ch='A',char c=97,char r='\n',char c='\uABCD'(unicode 码);    //两个字节
+
+** 浮点类型
+   float f=1.11f,float f=1.5E10f;    //四个字节，1.1 默认是 double 型，末尾必须加 f 或 F
+
+   double d=4.4,double d=4.4d;       //八个字节，末尾可以加 d 或 D，也可以不加
+** 数组
+   #+BEGIN_SRC java
+
+     int s[]=new int[10];    //10 可以换成变量
+     int []a,b[];    //a[],b[][];
+     int a[][]=new int[3][];a[0]=new int[5];a[1]=new int[4];  //长度不一样哦
+     //每个数组都有自己的属性，通过 a.length 是形式访问
+     int a[]={0,1,2,3,4,5,6,7};    //一维数组直接初始化
+     int a[][]={ { 0,1},{1,2,3},{3,4,5,6}   };    //二维数组直接初始化
+
+   #+END_SRC
+** 类型转换
+   (类型名)要转换的值;
+   #+BEGIN_EXPORT html
+     <!--more-->
+   #+END_EXPORT
+* 输入输出
+** 输入
+   #+BEGIN_SRC java
+
+     import java.util.Scanner;
+     Scanner cin=new Scanner(System.in);
+     x=cin.nextDouble();    //hasNext();
+
+   #+END_SRC
+** 输出
+   #+BEGIN_SRC java
+     System.out.println("LOVE")
+   #+END_SRC
+* Java 编译器
+** 编译
+   #+BEGIN_SRC sh
+     javac Main.java
+   #+END_SRC
+** 运行
+   #+BEGIN_SRC sh
+     java  Main
+   #+END_SRC
+** 反编译
+   #+BEGIN_SRC sh
+     javap Main.class    //列出 Main.class 中的 public 成员变量名字和 public 方法名字
+   #+END_SRC
+** 生成结构 html
+   #+BEGIN_SRC sh
+     javadoc Main.java    //制作源文件类结构的 html 文档
+   #+END_SRC
+* 类
+** 类基础知识-源代码举例：
+   #+BEGIN_SRC java
+
+     package test;        //包语句，必须放在文件第一行，其中源码文件必须放在...../test/目录下
+     package sun.test;    //包语句，包名中不能有 java，放在....../sun/test/目录下
+     //编译时候无所谓，无论目录对不对，编译都能通过
+     //运行时可以用"java test/文件名","java sun.test.文件名"两种形式运行
+     import java.util.Scanner;    //导入包中的类
+     class Name{//类声明
+         //属性
+         int a;    //对，默认值是 0
+         a=5;    //错，只能出现在方法体中
+         int a=5;    //对，实例变量，每个对象都存在自己的变量，不共用
+         static int aa;    //类变量，默认为 0，通过类名访问，也能通过对象名访问，该类所有对象共用一个，与是否存在对象无关
+         //属性和方法的四种权限，public，无，protected，private。
+         public int a;        //共有变量，所有别的类可以直接通过类的对象名访问
+         int a;               //友好变量，只能自己包的类访问
+         protected int a;     //受保护变量，只能自己包的类访问
+         private int a;       //私有变量，别的类不能通过类的对象名访问
+
+         void f(){        //实例方法，可以调用实例变量，类变量，所有对象共用一个入口，当没有对象，就没有入口
+         }
+
+         static void ff(){    //类方法，对象和类都可以调用，只能操控类变量，该类所有对象共用一个，与是否存在对象无关
+             int a=10;
+             this.a=100;        //错误，static 不能使用 this 指针，可以直接使用 static 变量或者通过类名引用 static 变量
+
+         }
+         void f(int x){
+             //与上面 f 函数构成重载，方法重载要求参数不同，尽量不要混淆//
+             //参数不同的含义：1.个数不同    2.个数相同，但是类型不同//
+         }
+         Name(){            //构造方法,java 中没有析构方法
+             a=10;
+         }
+
+     }
+   #+END_SRC
+** 实体的创建
+   public class SB{ }    //public 类，所有类都可以用该类创建对象
+
+   class BS{ }           //友好类，同包类可以用它创建对象
+
+   //不能用 protected 和 private 修饰类
+
+   对象的声明：类名 对象名;
+
+   创建实体：对象名=new 类名();
+
+** 与其它类型值的转换
+   | 类型   | 构造方法           | 得到值到方法  |
+   |--------+--------------------+---------------|
+   | byte   | Byte(byte num)     | byteValue()   |
+   | short  | Short(short num)   | shortValue()  |
+   | int    | Integer(int num)   | intValue()    |
+   | long   | Long(long num)     | longValue()   |
+   | float  | Float(float num)   | floatValue()  |
+   | double | Double(double num) | doubleValue() |
+   | char   | Character(char c)  | charValue()   |
+
+   Byte b = new Byte(6); // b 是 Byte 类型
+
+   byte a = b.byteValue(); // a 是 byte 类型
+
+   Byte.parseByte("123"); //解析"123"为 byte 类型
+
+   Byte.valueOf("123"); //解析"123"为 Byte 类型
+
+** private,友好，protected，public
+
+   类总共有 public 类，友好类，其中，友好类只能在同一个包内使用。public 类可以在所以包中使用。
+
+   访问：在其他类中
+   protected 变量产生的包跟使用的时候所在的包是同一个包的时候，才能访问
+   | 权限      | 同包同文件 | 同包其他文件 | 其他包文件 |
+   |-----------+------------+--------------+------------|
+   | private   | N          | N            | N          |
+   | 友好      | Y          | Y            | N          |
+   | protected | Y          | Y            | N         |
+   | public    | Y          | Y            | Y          |
+
+   继承：在子类中
+   | 权限      | 同类 | 同包同文件子类 | 同包其他文件子类 | 其他包子类 |
+   |-----------+------+----------------+------------------+------------|
+   | private   | Y    | N              | N                | N          |
+   | 友好      | Y    | Y              | Y                | N          |
+   | protected | Y    | Y              | Y                | Y          |
+   | public    | Y    | Y              | Y                | Y          |
+
+   不能用 protected 和 private 修饰类，访问权限的级别排列，从高到低是 pubic、protected、友好的、private。
+
+   public 修饰的变量和方法可以被任何类继承或使用
+
+   protected 修饰的变量或方法：继承-当前类，同包类，不同包类。使用-当前类，同包类。
+
+   友好修饰的变量和方法只能被当前类，同包类继承或使用。
+
+   private 修饰的变量和方法只能被当前类使用。不存在继承。
+
+** 对象数组
+   Student stu[]=new Student[10];
+** 子类与继承
+*** 子类基础
+    #+BEGIN_SRC java
+
+      class Stu extends People{
+          //子类的声明，继承非 private 的属性和方法
+          //当子类与父类不在同一个包中，那么不能继承友好访问权限的属性和方法
+          //对于 protected，假如类 D 中含有 protected 类型，在类 Other 中实现了 D，追究 D 中 protected 类型的根源
+          //假如根源的类与 Other 类在同一个包，可以使用，否则不能使用
+      }
+      //如果没有 extends，则默认加上 extends Object
+      //子类只能有一个父类
+      boolean b=stu instanceof Student;    //instanceof 左边是对象，右边是类
+      //如果左边的对象是右边类的实现，则返回 true，否则返回 false
+
+    #+END_SRC
+*** 重写
+    每个方法只能操作这个方法的根源的类所能见变量
+
+    重写父类方法不能降低权限，但是可以提高权限
+
+    权限从高到底排序：public、protected、友好的、private;
+
+    重写记得跟原方法的声明一样，参数也得一样，否则就造成了重载
+
+    super.b;    //以本类的父类的视角使用 b 属性，即可以操作被隐藏的成员变量
+
+    构造函数：个人理解，构造函数有两个作用，1.分配空间，2.初始化
+
+    子类在设置构造函数的时候，里面应该有 super();即代表父类的构造函数，默认为无参数
+    #+BEGIN_SRC java
+      final class A{    //声明为 final 类，不能被任何类继承（有时出于安全，会设置为 final 类）
+          final 方法：        //不允许被重写
+              final 变量：        //常量，运行期间不能发生改变
+      }
+    #+END_SRC
+*** 上转型
+    父类的引用，子类的实体，即父类的"接口"，子类的内在实现，外表是父类视角，内在是子类视角
+
+*** 抽象类
+    abstract class A{ }    //abstract 类（抽象类）
+
+    abstract int min(int x,int y);
+
+    //abstract 方法（抽象方法），只允许声明，不允许实现（没有方法体），而且不允许同时使用 final 和 abstract，
+    而且不允许 static 修饰 abstract 方法，即 abstract 只能是实例方法。非抽象类作为抽象类的子类，那么它必须重写父类的抽象方法。
+
+    + abstract 类可以有 abstract 方法，也可以有非 abstract 方法。非 abstract 类中不能有 abstract 方法。
+    + abstract 类不能用 new 运算符创建对象。
+    + abstract 类虽然不能使用 new，但可以引用，所以可以作上转型对象。
+    + abstract 类可以没有 abstract 方法。
+    + abstract 类继承 abstract 类，可以重写父类的 abstract 方法，也可以不重写。
+
+** 接口与实现
+   interface 接口名{ };//接口声明
+
+   接口体中包含常量的声明（没有变量，常量一定是 public static final，可省略），
+   抽象方法（没有普通方法，方法一定是 public abstract，可省略）两种。
+
+   接口前可加 public 或什么也不加，是为 public 接口或友好接口。
+
+   类接口实现：class A implements 接口名 1,接口名 2
+
+   子类接口实现：class 子类名 extends 父类名 implements 接口名 1,接口名 2
+
+   不同与继承，类可以同时实现一个或者多个接口。
+
+   接口方法重写：一个非抽象类实现了某个接口，那么这个类必须重写这个接口中的所有方法。
+
+   非抽象类实现接口，由于接口中的方法是 public abstract 方法，所以重写一定是 public 方法。
+
+   抽象类实现接口，可以重写接口方法，也可以不重写，直接继承。
+
+   接口回调：接口回调其本质与上转型是一样的。不同的是,接口回调是用接口句柄来得到并调用实现这个接口的子类的引用，
+   而上转型则是用父类句柄来得到并调用继承此父类的子类的引用。
+
+** 内部类
+   内部类：外部类与其他类是平行关系，内部类与外嵌类的属性和方法是平行关系。
+
+   内部类可以使用外嵌类的属性和方法。
+
+   内部类中不能声明类变量和类方法。
+
+   内部类仅供它的外嵌类使用，其他类不能使用。
+
+   内部类前面可以加 static，其他类就可以通过"外嵌类.内部类"调用。
+   但是同时内部类就不能调用外嵌类的实例变量和实例函数了，只能调用外嵌类类变量和类方法。
+
+** 匿名类
+   匿名类：new People(){
+
+   //匿名类的类体
+
+   };
+
+   匿名类一定在某个类的方法中实现，所以匿名类一定是内部类。
+
+   匿名类中不可以声明 static 成员变量和 static 方法。
+
+   匿名类是子类，没有类名，因此没有构造方法，所以要直接使用父类的构造函数。
+
+   同样，匿名类也可以是实现接口的匿名类。
+
+** 异常类
+** 断言
+   assert bool 表达式;
+
+   //如果为 ture，程序继续执行；如果为 false，程序立即结束。
+
+   assert bool 表达式:字符串;
+
+   //如果为 ture，程序继续执行；如果为 false，程序立即结束，并返回字符串。
+
+   java -ea mainClass    //。默认是关闭断言的，加-ea 可以启用断言语句
+
+* 实用类
+** String 类
+*** 构建字符串对象：
+    #+BEGIN_SRC java
+
+      String s="I LOVE YOU!";
+      char a[]={'I',' ','L','O','V','E',' ','Y','O','U','!'};
+      String s=new String(a);
+      String s = new String(byte a[],int startIndex,int count);
+      String s = new String(char a[],int startIndex,int count);
+      //从 a[startIndex]开始截取 count 个字符组成字符串赋给 s。
+      //String s=new String(a,2,4);//s 等于"LOVE"。
+      String s=new String("I LOVE YOU!");
+
+    #+END_SRC
+*** 常用方法
+    #+BEGIN_SRC java
+
+      //默认为对象 STR 调用方法
+      int length();//得到字符串的长度。
+      boolean equals(String s);//判断 STR_value 与 s_value 是否相等。
+      boolean startsWith(String s);//判断 STR_value 是否以 s_value 开头。
+      boolean endsWith(String s);//判断 STR_value 是否以 s_value 结尾。
+      int compareTo(String s);//判断 STR_value 与 s_value 的大小，>返回正值，<返回负值，==等于 0。
+      boolean contains(String s);//判断 STR_value 是否包含 s_value。
+      int indexOf(String s);//在 STR_value 中找到第一个 s_value 的索引，并返回；搜索不到，返回-1。
+      int indexOf(String s,int startpoint);//从索引 startpoint 开始，在 STR_value 中找到第一个 s_value 的索引，并返回；搜索不到，返回-1。
+      String substring(int startpoint);//返回从索引 startpoint 开始至最后的字符串。
+      String substring(int startpoint,int end);//返回从索引 startpoint 开始至索引 end-1 的字符串。
+      String trim();//返回去掉 STR_value 左右两边空格的字符串（不修改 STR_VALUE）。
+      void getChars(int start,int end,char c[],int offset);//将字符串从索引 start 到 end-1，复制到数组 c，从数组索引 offset 开始。（要确保数组能放下）
+      char[] toCharArray();//将 STR 字符串存到字符数组中，并返回(一个汉字是两个字节 )
+      byte[] getBytes();//使用平台默认编码，将 STR 字符串存到字节数组中，并返回
+      byte[] getBytes(String charsetName);//指定编码，将 STR 字符串存到字节数组中，并返回
+      boolean matches(String regex);//判断 STR_value 是否匹配正则表达式 regex。
+      String replaceAll(String regex,String replacement);//将 STR_value 中符合 regex 的字符串替换为 replacement，并返回
+      String[] split(String regex);//以符合 regex 的字符串作为分隔符，分隔 STR_value，返回字符串数组
+
+    #+END_SRC
+*** 字符串与基本数据的相互转化
+    #+BEGIN_SRC java
+
+      //java.lang.Integer 类中有
+      public static int parseInt(String s) throws NumberFormatException;
+      //java.lang.Byte 类中有
+      public static byte parseByte(String s) throws NumberFormatException;
+      //java.lang.Short 类中有
+      public static short parseShort(String s) throws NumberFormatException;
+      //java.lang.Long 类中有
+      public static long parseLong(String s) throws NumberFormatException;
+      //java.lang.Float 类中有
+      public static float parseFloat(String s) throws NumberFormatException;
+      //java.lang.Double 类中有
+      public static double parseDouble(String s) throws NumberFormatException;
+
+      //String 的类方法:
+      public static void valueOf(byte n);
+      public static void valueOf(int  n);
+      public static void valueOf(long n);
+      public static void valueOf(float n);
+      public static void valueOf(double n);
+      public static void valueOf( n);
+      public static void valueOf( n);
+
+      //java.lang.Object 类有方法 public String toString()，一个对象通过调用该方法能得到对象自己的字符串表示。
+
+    #+END_SRC
+** StringTokenizer 类
+   StringTokenizer 类，位于 Java.util 包中。
+*** 构造函数
+    #+BEGIN_SRC java
+      StringTokenizer(String s);    //使用默认分隔标记，即一个或多个空格（包括换行，回车）。
+      StringTokenizer(String s,String delim);    //delim 中的字符被作为分隔标记。
+    #+END_SRC
+*** 方法
+    #+BEGIN_SRC java
+      String nextToken();            //返回分隔后的下一个字符串。
+      boolean hasMoreTokens();    //如果还有下一个字符串，返回 true；如果没有，返回 false。
+      int countTokens();            //返回剩余字符串的个数。
+    #+END_SRC
+
+** Scanner 类
+   #+BEGIN_SRC java
+     Scanner.useDelimiter(正则表达式);    //Scanner 类的类方法，用该正则表达式作为分隔符。
+   #+END_SRC
+
+** StringBuffer 类
+   String 类创建的实体是不能发生变化的，StringBuffer 类创建的实体大小是可以发生变化的。
+*** 构造方法
+    #+BEGIN_SRC java
+      StringBuffer();//默认分配 16 字节
+      StringBuffer(int size);
+      StringBuffer(String s);
+    #+END_SRC
+
+*** 方法
+    #+BEGIN_SRC java
+
+      int length();//得到 StringBuffer 对象中存放的字符序列的长度。
+      int capacity();//得到 StringBuffer 对象的实际的长度。
+
+      StringBuffer append(String s);
+      StringBuffer append(int n);
+      StringBuffer append(Object o);//等等等等
+
+      char charAt(int n);//得到 StringBuffer 对象储存的字符串中的索引为 n 的字符。
+      void setCharAt(int n,char ch);    //设置 StringBuffer 对象储存的字符串中的第 n 个字符为 ch。
+      StringBuffer insert(in index,String str);
+      //将 str 插入到 StringBuffer 索引为 index 的位置（本对象会修改），并返回本对象的索引。
+      StringBuffer reverse();//将本对象字符串反转（本对象会修改），并返回本对象的索引。
+      StringBuffer delete(int startIndex,int endIndex);
+      //删除字符串索引 startIndex 至 endIndex-1 的字符串（本对象会修改），并返回本对象的索引。
+      StringBuffer deleteCharAt(int index);//删除索引 index 的字符（本对象会修改），并返回本对象的索引。
+      Stringbuffer replace(int startIndex,int endIndex,String str);
+      //替换 startIndex 至 endIndex-1 的字符串为 str（本对象会修改），并返回本对象的索引。
+
+    #+END_SRC
+** Pattern 类和 Matcher 类
+   两个类都在 java.util.regex 包中;
+
+** File 类
+   该类在 java.io 包中。
+*** 构造函数
+    #+BEGIN_SRC java
+      File(String filename);
+      File(String directoryPath,String filename);
+      File(File dir,String filename);
+    #+END_SRC
+*** 文件的属性
+    #+BEGIN_SRC java
+
+      String getName();
+      boolean canRead();
+      boolean canWrite();
+      boolean exists();//文件是否存在
+      long length();//单位是字节
+      String getAbsolutePath();//获取文件的绝对路径
+      String getparent();//获取文件的父目录（相对路径返回 null，绝对路径返回父目录）
+      boolean isFile();
+      boolean isDirectory();
+      boolean isHidden();//是否是隐藏文件
+      long lastModified();//返回最后一次修改的时间（相对于 1970 年午夜至修改时间的毫秒）
+
+    #+END_SRC
+*** 目录
+    #+BEGIN_SRC java
+
+      boolean mkdir();//创建目录，成功返回 true，失败返回 false。
+      String[] list();//用字符串形式返回目录下的全部文件。
+      File[] listFiles();//用 File 对象形式返回目录下的全部文件。
+      String[] list(FilenameFilter boj);//用字符串形式返回目录下指定类型的全部文件。
+      File[] listFiles(FilenameFilter obj);//用 File 对象形式返回目录下指定类型的全部文件。
+      Filenamefilter 是一个接口，该接口有一个方法：
+          public boolean accept(File dir,String name);
+      //上面需要 FilenameFilter 的函数会不断调用 Filenamefilter 接口的 accept 方法，
+      //每次传参 dir（调用的目录），name（文件名，每次不同，直至所有文件都调用过），当方法返回 true，name 储存到返回的数组中。
+
+    #+END_SRC
+*** 文件的创建与删除
+    #+BEGIN_SRC java
+      boolean createNewFile();    //创建
+      boolean delete();            //删除
+    #+END_SRC
+
+*** 运行可执行文件
+    #+BEGIN_SRC java
+      import java.lang.Runtime;
+      Runtime ec=Runtime.getRuntime();
+      ec.exec(String s);    //里面是执行程序的路径，因为可能产生 Exception 异常，必须放在 try...catch 中执行。
+    #+END_SRC
+
+** 文件字节输入流：FileInputStream 类（按字节）
+*** 构造方法
+    #+BEGIN_SRC java
+      FileInputStream(String s);    //通过文件路径建立文件字节输入流。
+      FileInputStream(File file);    //通过文件对象建立文件字节输入流。
+    #+END_SRC
+    因为建立输入流可能生成 IOExcept 异常，所以构造方法必须放在 try...catch 中执行。
+
+*** 使用输入流读取字节
+    #+BEGIN_SRC java
+      int read();
+      //正确的话返回字节值（0~255），错误返回-1。
+      int read(byte b[]);
+      //读取 b.length 个字节储存到数组 b 中，如果到达末尾，返回-1。
+      int read(byte b[],int off,int len);
+      //读取 len 个字符，从 b 索引 off 处开始存储，如果到达末尾，返回-1。
+    #+END_SRC
+
+    上面方法是依次读取，以上方法必须放到 try...catch 中，否则编译不能通过。
+
+*** 关闭输入流
+    #+BEGIN_SRC java
+      void close();
+      //尽管关闭程序时会自动关闭所有打开的流，但是显示关闭是一个良好的习惯。
+    #+END_SRC
+
+** 文件字节输出流：FileOutputStream 类（按字节）
+*** 构造方法
+    #+BEGIN_SRC java
+      FileOutputStream(String s);
+      FileOutputStream(File file);
+      FileOutputStream(String s,boolean append);
+      FileOutputStream(File file,boolean append);
+    #+END_SRC
+    在使用构造方法的时候，当文件不存在时，建立一个新文件。
+
+    如果指向的文件存在，则输入流将刷新该文件（使得文件长度为 0），
+
+    append 决定输入流是否刷新，必须在 try...catch 中。
+
+*** 使用输出流写字节
+    #+BEGIN_SRC java
+      void write(int n);    //轮流调用该方法向目的地写入单个字节。
+      void write(byte b[]);    //向目的地写入一个字节数组。
+      void write(byte b[],int off,int len);//从数组 b 索引 off 处开始，读取 len 个字节写到文件中。
+    #+END_SRC
+
+*** 关闭输出流
+    #+BEGIN_SRC java
+      void close();
+      //即使不关闭输出流，依然能写到文件中。
+    #+END_SRC
+
+** 文件字符输入、输出流（按字符）
+   #+BEGIN_SRC java
+     FileReader(String s);
+     FileReader(File file);
+     FileWrite(String s);
+     FileWrite(File file);
+     FileWrite(String s,boolean append);
+     FileWrite(File file,boolean append);
+   #+END_SRC
+   字符输入流使用 read 方法以字符为基本单位读数据。
+
+   字符输出流使用 write 方法以字符为基本单位写数据。
+
+   对于 Write 流，write 方法将数据首先写入到缓冲区中，每当缓冲区溢出时，
+   缓冲区的内容被自动写入到目的地，如果关闭流，缓冲区的内容会立刻写入到目的地中。
+
+   可以调用 flush()方法刷新缓冲区，即将缓冲区内容写入目的地。
+
+** 缓冲流（按行）
+   #+BEGIN_SRC java
+     BufferedReader(Reader in);
+     String readLine();        //读取一行
+     BufferedWriter(Writer out);
+     newLine();                //输出换行到文件。
+     write(String s,int off,int len);
+     flush();
+   #+END_SRC

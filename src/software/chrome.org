@@ -1,0 +1,15 @@
+#+TITLE: 让 chrome 变得更好用
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: software, chrome
+#+CATEGORIES: software
+
+* chrome
+** extension
+*** uget 扩展，使用 uget 下载
+   #+BEGIN_SRC sh
+     wget https://raw.githubusercontent.com/slgobinath/uget-chrome-wrapper/master/build/linux/install_uget_chrome_wrapper.sh
+     sudo ./install_uget_chrome_wrapper.sh
+   #+END_SRC
+   然后在 chrome 商店下载插件，本地 uget+aria2，速度简直超快

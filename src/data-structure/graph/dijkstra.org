@@ -1,0 +1,202 @@
+#+TITLE: 最短路径(dijkstra)
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 描述
+  这是求最短路径的算法，用的是 dijkstra 算法
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+    #include<string.h>
+    /* 用户输入最多顶点的个数 */
+    #define MAX_VERNUM 128
+    /* 顶点名字的最长长度 */
+    #define MAX_STRLEN 1024
+
+    /* 邻接矩阵结构体定义 */
+    typedef struct m_graph MGraph;
+    struct m_graph{
+      int vernum;			//图顶点数
+      int edgenum;		//图边数
+      char *vername[MAX_VERNUM];	//顶点的名字
+      int matrix[MAX_VERNUM][MAX_VERNUM];	//存边的矩阵
+    };
+
+    /* 接受一个大小，通过 calloc 申请内存，出错则退出 */
+    void * my_calloc(int size);
+    /* 参数：邻接矩阵，字符串
+     * 功能：搜索该字符串在邻接矩阵顶点名字数组中的索引
+     * 出错返回-1 */
+    int vername_index(MGraph *pmg, char *str);
+    /* 处理用户输入，返回一个邻接矩阵结构体 */
+    MGraph* userInput(void);
+    /* 销毁邻接矩阵结构体 */
+    void destroyMGraph(MGraph *pmg);
+    /* Dijkstra 最短路径算法 */
+    void dijkstra(MGraph * pmg, int src, int des);
+
+
+    int main(int argc, char **argv){
+
+      MGraph *pmg = userInput();
+      if(!pmg){
+        printf("用户输入错误\n");
+        exit(1);
+      }
+
+      char str[MAX_STRLEN];
+      int src;
+      int des;
+      printf("请输入起始点：");
+      scanf("%s",str);
+      src = vername_index(pmg, str);
+      printf("请输入终点：");
+      scanf("%s",str);
+      des = vername_index(pmg, str);
+
+      if(src == -1 || des == -1){
+        printf("用户输入错误\n");
+        exit(1);
+      }
+      dijkstra(pmg, src, des);
+      destroyMGraph(pmg);
+
+      return 0;
+    }
+
+    void *my_calloc(int size){
+      void *pv = calloc(size, 1);
+      if(pv)
+        return pv;
+      else
+        exit(1);
+    }
+
+    int vername_index(MGraph *pmg, char *str){
+      int i;
+      for(i=0; i < pmg->vernum; i++){
+        /* 有长度的比较，防止发生意外错误 */
+        if(! strncmp(pmg->vername[i], str, MAX_STRLEN) )
+          return i;
+      }
+      return -1;
+    }
+
+    MGraph * userInput(void){
+      int vernum;
+      int edgenum;
+      printf("请输入图的顶点个数和边的条数：");
+      scanf("%d%d",&vernum, &edgenum);
+      /* calloc 申请内存初始化为 0 */
+      MGraph *pmg = my_calloc(sizeof(MGraph));
+      pmg->vernum = vernum;
+      pmg->edgenum = edgenum;
+      int i;
+      printf("请输入图的顶点名字(可以任意字符串)：\n");
+      for(i=0; i<vernum; i++){
+        pmg->vername[i] = my_calloc(MAX_STRLEN);
+        scanf("%s", pmg->vername[i]);
+      }
+
+      char *str;
+      int row,column;
+      printf("请输入边和权值：\n");
+      for(i=0; i<edgenum; i++){
+        str = my_calloc(MAX_STRLEN);
+        scanf("%s",str);
+        row = vername_index(pmg, str);
+        scanf("%s",str);
+        column = vername_index(pmg, str);
+        /* 用户输入错误，返回 NULL */
+        if(row == -1 || column == -1){
+          free(str);
+          return NULL;
+        }
+        scanf("%d",&pmg->matrix[row][column]);
+        /* 无向图，所以需要。如果有向图，则把这句注释掉 */
+        pmg->matrix[column][row] = pmg->matrix[row][column];
+      }
+      return pmg;
+    }
+
+    void destroyMGraph(MGraph *pmg){
+      int i;
+      for(i=0; i < pmg->vernum; i++)
+        free(pmg->vername[i]);
+      free(pmg);
+    }
+
+    void dijkstra(MGraph * pmg, int src, int des){
+      /* 用来标识所有顶点到起始点的距离 */
+      int *distance = my_calloc(sizeof(int) * pmg->vernum);
+      /* 用来标识到该点的最短距离的前一个顶点的索引 */
+      int *pre_ver = my_calloc(sizeof(int) * pmg->vernum);
+
+      /* 用来标识已经到达的结点，flag[0]表示到达结点的个数 */
+      int *flag = my_calloc( sizeof(int) * (pmg->vernum + 1) );
+      /* 指向到达但是没有遍历临顶点的顶点索引 */
+      int cur_flag;
+      int i,j;
+      /* 用-1 来表示距离无穷大 */
+      for(i=0; i < pmg->vernum; i++)
+        distance[i] = -1;
+      distance[src] = 0;
+      pre_ver[src] = src;
+      flag[0] = 1;
+      flag[1] = src;
+      cur_flag = 1;
+
+      while(cur_flag <= flag[0]){
+        /* i 表示行，j 表示列 */
+        i = flag[cur_flag];
+        for(j=0; j < pmg->vernum; j++){
+          /* 矩阵中权值为 0 表示没有该边 */
+          if(pmg->matrix[i][j] > 0){
+            if(distance[j] == -1 ){
+              /* 没有起始点到 j 点的距离 */
+              distance[j] = distance[i] + pmg->matrix[i][j];
+              pre_ver[j] = i;
+              /* 发现新顶点，加入 flag 数组 */
+              flag[0]++;
+              flag[ flag[0] ] = j;
+            }else{
+              /* 存在起始点到 j 点的距离，取最小值 */
+              if(distance[j] > distance[i] + pmg->matrix[i][j]){
+                distance[j] = distance[i] + pmg->matrix[i][j];
+                pre_ver[j] = i;
+              }
+            }
+
+          }
+        }
+        cur_flag++;
+      }
+      if(distance[des] == -1)
+        printf("找不到到目标顶点的路径\n");
+      else{
+        printf("路径是：\n");
+        int save_des = des;
+        int pre;
+        while(des != pre_ver[des]){
+          pre = pre_ver[des];
+          printf("%s-%s,%d\n",pmg->vername[pre],pmg->vername[des],
+                 pmg->matrix[pre][des]);
+          des = pre;
+        }
+        printf("最小路径权值是：%d\n",distance[save_des]);
+      }
+
+      free(distance);
+      free(pre_ver);
+      free(flag);
+    }
+
+  #+END_SRC

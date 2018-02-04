@@ -1,0 +1,59 @@
+#+TITLE: 快速排序
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+    int fast(int *p,int low ,int high)
+    {
+      int test;
+      int rlow=low;
+      int rhigh=high;
+
+      while(low<high){
+        for(;low<high && p[high]>p[low];high--)
+          ;
+        test=p[low];
+        p[low]=p[high];
+        p[high]=test;
+
+        for(;low<high && p[high]>p[low];low++)
+          ;
+        test=p[low];
+        p[low]=p[high];
+        p[high]=test;
+      }
+      if(rlow<rhigh){
+
+        fast(p, rlow ,low-1);
+        fast(p ,low+1,rhigh);
+      }
+      return low;
+    }
+    int main(int argc, char **argv)
+    {
+      int n;
+      scanf("%d",&n);
+      int *p=malloc( (n+1)*sizeof(int));
+      int i;
+      for(i=1;i<=n;i++)
+        scanf("%d",p+i);
+
+      fast(p,1,n);
+
+      for(i=1;i<=n;i++){
+        printf("%d",p[i]);
+        if(i!=n)
+          printf(" ");
+      }
+
+      return 0;
+    }
+
+  #+END_SRC

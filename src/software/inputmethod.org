@@ -1,0 +1,22 @@
+#+TITLE: 输入法存在的问题(linux 环境下)
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: software, inputmethod, linux
+#+CATEGORIES: software
+
+* 输入法存在的问题(linux 环境下)
+** rime
+    添加方案修改.config/fcitx/rime/default.yaml，然后把相应的 yaml 和 dict 复制过来。
+    如果输入只显示字母，不显示中文输入框，则需要手动部署，或者手动编译。
+    手动编译过程如下，进入全局数据目录，fedora 下是/usr/share/rime-date/，
+    然后使用 sudo rime_deployer --compile xxxx.schema.yaml，进行编译，
+    然后把产生的 xxxx.*.bin 等几个文件 ln -s 到.config/fcitx/rime 中就可以了。
+** sogou
+    搜狗输入法在 ubuntu 下是可以直接安装的，但是在 fedora 下，就得自己手动装了，
+    首先从官网下对应版本，我用的是 64 位的，32 位的请自己对应解决，然后解压 deb 包，
+    其中有一个 data 压缩包，解压，然后复制到相应的目录里去，最后一步，
+    把/usr/lib/x86_64-linux-gnus/fcitx/文件夹里的东西挪到/usr/lib64/fcitx/文件夹里。
+    重启 fcitx，OK。(PS: 最后因为总死机，卸载了)
+** fcitx
+    Addon 中存在一个插件 clipboard，快捷键 ctrl+;，与 emacs 冲突，改为 win+;。

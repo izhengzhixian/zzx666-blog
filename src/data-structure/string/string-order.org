@@ -1,0 +1,282 @@
+#+TITLE: 串的实现
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 描述
+  这是一个串的实现，使用的是堆分配顺序的方式
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+
+    #define TRUE	1
+    #define FALSE	0
+    #define OK	1
+    #define ERROR	0
+    #define INFESIBLE	-1
+    #define OVERFLOW	-2
+    #define MAXSIZE 100
+    #define LISTINCREMENT 20
+
+    typedef int Status;
+    typedef int ElemType;
+
+    typedef struct {
+      char *ch;
+      int length;
+    }HString;
+
+    /*初始化串*/
+    Status InitHString(HString *pT);
+
+    /*将 chars 所指向的字符串赋值到 qT 指向的串上*/
+    Status StrAssgin(HString *pT, char *chars);
+
+    /*将串 S 复制到 pT 所指向的串上*/
+    Status StrCopy(HString *pT, HString S);
+
+    /*判断串是否为空*/
+    Status StrEmpty(HString S);
+
+    /*若 S>T,返回值>0; 若 S=T,返回值=0; 若 S<T,返回值<0. */
+    int StrCompare(HString S, HString T);
+
+    /*返回串的长度 */
+    int StrLength(HString S);
+
+    /*清空串*/
+    Status ClearHString(HString *pT);
+
+    /*令 *pT=S1+S2 */
+    Status Concat(HString *pT, HString S1, HString S2);
+
+    /*若主串 S 中存在和串 T 值相同的子串，则返回他在主串中第 pos 个字符之后
+     * 第一次出现的位置；否则函数值为 0 */
+    int Index(HString S, HString T, int pos);
+
+    /*用串 V 替换主串 pS 中出现的所有与 T 相等的不重叠的子串*/
+    Status Replace(HString *pS, HString T, HString V);
+
+    /*在串的第 pos 个字符之前插入串 T*/
+    Status StrInsert(HString *pS, int pos, HString T);
+
+    /*从串 ps 中删除第 pos 个字符起长度为 len 的子串*/
+    Status StrDelete(HString *pS, int pos, int len);
+
+    /*销毁 pS*/
+    Status DestroyHString(HString *pS);
+
+    int main(int argc, char **argv)
+    {
+
+      HString T,A;
+      InitHString(&T);
+      InitHString(&A);
+      StrAssgin(&T,argv[1]);
+      StrAssgin(&A,argv[2]);
+      printf("%s\n",T.ch);
+      StrInsert(&T,5,A);
+      printf("%s\n",T.ch);
+
+
+      return 0;
+    }
+
+    Status InitHString(HString *pT)
+    {
+      pT->ch=NULL;
+      pT->length=0;
+      return 0;
+    }
+
+    Status StrAssgin(HString *pT, char *chars)
+    {
+      free(pT->ch);
+      for(pT->length=0;chars[pT->length]!='\0';pT->length++)
+        ;
+      pT->ch=malloc((pT->length+1) * sizeof(char));
+      if(!pT->ch)
+        exit(OVERFLOW);
+      int j=0;
+      for(j=0;j<pT->length;j++)
+        pT->ch[j]=chars[j];
+      pT->ch[j]='\0';
+
+      return OK;
+    }
+
+    Status StrCopy(HString *pT, HString S)
+    {
+      StrAssgin(pT, S.ch);
+
+      return OK;
+    }
+
+    Status StrEmpty(HString S)
+    {
+      if(S.length==0)
+        return TRUE;
+      return FALSE;
+    }
+
+    int StrCompare(HString S, HString T)
+    {
+      int i;
+      for(i=0; i<S.length && i<T.length; i++)
+        if(S.ch[i]!=T.ch[i])
+          return S.ch[i]-T.ch[i];
+
+      return S.length-T.length;
+    }
+
+    int StrLength(HString S)
+    {
+      return S.length;
+    }
+
+    Status ClearHString(HString *pT)
+    {
+      free(pT->ch);
+      pT->ch=NULL;
+      pT->length=0;
+
+      return OK;
+    }
+
+    Status Concat(HString *pT, HString S1, HString S2)
+    {
+      free(pT->ch);
+      pT->length=S1.length+S2.length;
+      pT->ch=malloc((pT->length+1) * sizeof(char));
+      if(!pT->ch)
+        exit(OVERFLOW);
+      int j;
+      for(j=0;j<S1.length;j++)
+        pT->ch[j]=S1.ch[j];
+      for(j=0;j<S2.length;j++)
+        pT->ch[S1.length+j]=S2.ch[j];
+      pT->ch[pT->length]='\0';
+      return OK;
+    }
+
+    int Index(HString S, HString T, int pos)
+    {
+      if(pos<1||pos>S.length)
+        return ERROR;
+      int i,j;
+      for(i=pos-1;i<S.length-T.length+1;i++){
+        for(j=0;j<T.length;j++){
+          if(S.ch[i+j]!=T.ch[j])
+            break;
+        }
+        if(j==T.length)
+          return i+1;
+      }
+      return 0;
+    }
+
+    Status Replace(HString *pS, HString T, HString V)
+    {
+      int pos;
+      /*下面两个分别代表 pS 的 ch，新串的游标，旧串的游标。*/
+      char *new;
+      int num_new;
+      int num_old;
+      int i;
+      while(1){
+        pos=Index(*pS, T, 1);
+        if(pos==0)
+          return OK;
+        pS->length+=V.length-T.length;
+        new=malloc((pS->length+1) * sizeof(char));
+        if(!new)
+          exit(OVERFLOW);
+        for(num_old=0;num_old<pos-1;num_old++)
+          new[num_old]=pS->ch[num_old];
+        num_new=num_old;
+        num_old+=T.length;
+        for(i=0;i<V.length;i++,num_new++)
+          new[num_new]=V.ch[i];
+        for(;num_new<pS->length;num_new++,num_old++)
+          new[num_new]=pS->ch[num_old];
+        free(pS->ch);
+        pS->ch=new;
+        pS->ch[pS->length]='\0';
+      }
+      return OK;
+    }
+
+    Status StrInsert(HString *pS, int pos, HString T)
+    {
+      /*下面两个分别代表 pS 的 ch，新串的游标，旧串的游标。*/
+      char *new;
+      int num_new;
+      int num_old;
+      int i;
+      pS->length+=T.length;
+      new=malloc((pS->length+1) * sizeof(char));
+      if(!new)
+        exit(OVERFLOW);
+      for(num_old=0;num_old<pos-1;num_old++)
+        new[num_old]=pS->ch[num_old];
+      num_new=num_old;
+      for(i=0;i<T.length;i++,num_new++)
+        new[num_new]=T.ch[i];
+      for(;num_new<pS->length;num_new++,num_old++)
+        new[num_new]=pS->ch[num_old];
+      free(pS->ch);
+      pS->ch=new;
+      pS->ch[pS->length]='\0';
+
+      return OK;
+    }
+
+    Status StrDelete(HString *pS, int pos, int len)
+    {
+      if(pos<1||pos>pS->length||len<0)
+        return ERROR;
+      char *new;
+      int i;
+      if(pos+len-1 >= pS->length){
+        new=malloc( pos * sizeof(char));
+        if(!new)
+          exit(OVERFLOW);
+        for(i=0;i<pos-1;i++)
+          new[i]=pS->ch[i];
+        free(pS->ch);
+        pS->ch=new;
+        pS->length=pos-1;
+      }else{
+        new=malloc( (pS->length-len+1) * sizeof(char));
+        if(!new)
+          exit(OVERFLOW);
+        for(i=0;i<pos-1;i++)
+          new[i]=pS->ch[i];
+        for(i+=len;i<pS->length;i++)
+          new[i-len]=pS->ch[i];
+        free(pS->ch);
+        pS->length-=len;
+        pS->ch=new;
+        pS->ch[pS->length]='\0';
+      }
+
+      return OK;
+
+    }
+    Status DestroyHString(HString *pS)
+    {
+      free(pS->ch);
+      pS->ch=NULL;
+      pS->length=0;
+
+      return OK;
+    }
+
+  #+END_SRC

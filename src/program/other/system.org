@@ -1,0 +1,138 @@
+#+TITLE: 操作系统启动过程
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: program, other
+#+CATEGORIES: program, other
+
+* 前言
+  曾经有过一个很傻逼的想法，想写个简单的操作系统，后来发现需要牵扯的方方面面简直是太多了，而且真写出来也不一定会对我提高多少，而且我也不打算在硬件方面发展，所以了解操作系统启动发成种都发生了什么就够了。
+* bootloader
+  1. 首先 CPU 开启，默认指向 0xffff0（0xf:0xfff0,cs 隐藏寄存器对应的值是 0xffff0000,实际上 cpu 指向内存的 0xfffffff0）。
+  2. bios 映射在 0xff00 这个地方，有一个跳转代码，跳转到 bios 主要的代码区。
+     由 bios 进行开机自检，检测硬件，如果硬件出现问题，就会发出响声。不同的硬件有不同的响声。
+     然后检测 bios 设置，找到开机启动的硬盘，然后把这个硬盘的第一个扇区（Master boot record，缩写为 MBR）共 512 个字节复制到 0x7c00（0:0x7c00） 这个位置。
+     最后 jmp 到这个位置，交给 bootloader 来执行。
+  3. bootloader 开始执行
+  4. cli 关闭中断
+  5. 段寄存器清零
+  6. 开启第 20 根地址线
+  7. 探测物理内存
+  8. lgdt gdtdesc 加载 gdtr
+  9. 打开 cr0 寄存器的保护模式位，开启保护模式，但是这时还没有真正的进入保护模式。
+     386 以后段寄存器除了表面上的 16 位以外，还有一个 64 位的影子寄存器，真正的使用的是这个 64 位影子寄存器，这个寄存器并不受我们直接控制，而是在我们改变 16 位寄存器的时候，自动加载与之对应 gdt。
+     在实模式下，没有 gdt，会直接产生与段寄存器对应的影子寄存器的值。
+     在开启保护模式的时候，cs 对应的影子寄存器的值并没有更新，这时候对段寄存器的使用仍是实模式下的方式。
+     所以，我们需要手动加载新的影子寄存器值，通过 ljmp，设置 cs:ip。
+  10. 设置所有段寄存器值。
+  11. 设置 esp，即栈。
+  12. 跳到 c 语言执行区
+  13. 读取磁盘上的内核文件（ELF 格式）的 ELF 头+program 头到 0x10000 处（多读几个扇区保证内容的完整性），
+      然后把根据 program 头把每个 segment 加载到应该加载的地址上（低 24 位完全一样，高 8 位为 0，
+      为以后把内核代码映射到整个内存的高地址做准备）。
+      跳转到内核开始地址，地址由 ELF 文件指定，跳转的是低 24 位。
+      因为内核文件中使用的地址是映射到高地址后的地址（基址是 0xC0000000）。
+      所以，现在在用到内核中的地址时，需要&0xffffff。
+  14. 内存分布图
+
+      #+BEGIN_EXAMPLE
+        /* *
+        * Virtual memory map:                                          Permissions
+        * kernel/user
+        *
+        * 4G ------------------> +---------------------------------+
+        * |                                 |
+        * |         Empty Memory (*)        |
+        * |                                 |
+        * +---------------------------------+ 0xFB000000
+        * |   Cur. Page Table (Kern, RW)    | RW/-- PTSIZE
+        * VPT -----------------> +---------------------------------+ 0xFAC00000
+        * |        Invalid Memory (*)       | --/--
+        * KERNTOP -------------> +---------------------------------+ 0xF8000000
+        * |                                 |
+        * |    Remapped Physical Memory     | RW/-- KMEMSIZE
+        * |                                 |
+        * KERNBASE ------------> +---------------------------------+ 0xC0000000
+        * |        Invalid Memory (*)       | --/--
+        * USERTOP -------------> +---------------------------------+ 0xB0000000
+        * |           User stack            |
+        * +---------------------------------+
+        * |                                 |
+        * :                                 :
+        * |         ~~~~~~~~~~~~~~~~        |
+        * :                                 :
+        * |                                 |
+        * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        * |       User Program & Heap       |
+        * UTEXT ---------------> +---------------------------------+ 0x00800000
+        * |        Invalid Memory (*)       | --/--
+        * |  - - - - - - - - - - - - - - -  |
+        * |    User STAB Data (optional)    |
+        * USERBASE, USTAB------> +---------------------------------+ 0x00200000
+        * |        Invalid Memory (*)       | --/--
+        * 0 -------------------> +---------------------------------+ 0x00000000
+        * (*) Note: The kernel ensures that "Invalid Memory" is *never* mapped.
+        * "Empty Memory" is normally unmapped, but user programs may map pages
+        * there if desired.
+        *
+        * */
+      #+END_EXAMPLE
+
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+* load_kernel
+  1. 这一步是内核的开始代码，主要是为了后面所有的 C 语言操作设置环境，比如堆栈。
+     还有临时建立一个段映射关系，为以后建立分页做准备。
+  2. 第二次加载 gdt，这次加载 gdt 会让所有段基址为-KERNBASE，
+     这样后面的代码就可以使用内核代码中的地址了，而不用使用&0xffffff 这样取巧的方法去使用。
+  3. 重新设置段选择子的值。
+  4. ljmp 修改 cs 影子寄存器的值，使新的 cs 选择子生效。
+  5. 通过设置 esp 设置栈（2K）。
+  6. 跳到 kern_init
+* physical memory management
+  1. 根据 bootloader 算出的最大物理内存 maxpa 算出所需要的页面个数，一个页面大小是 PAGESZ＝4096,
+     则用 npage＝maxpa/PAGESZ 算出，之后在内核所在的内存结尾 end 处，页对齐得到地址 pages，
+     然后取 npage 个管理页结构的大小，npage*sizeof(PAGE)，在 pages 之后。
+  2. 存在一个物理内存管理结构体，里面主要有以下函数：
+     初始化 npage 个页管理结构的函数，分配内存的函数，回收内存的函数。
+     有一个辅助全局结构体把所有 free 的页串联起来，用以简化管理。
+  3. 分配内存暂时使用首次适应算法。
+  4. 准备开启分页
+  5. 用 alloc_page 分配一页用来做页目录表（PDT），把这一页全部清零，然后将 cr3 指向这一页。
+     然后把内核线性地址 0xC0000000-0xF3800000 映射到物理地址为 0 开始的区域。
+     把线性地址 0-4M 这个映射到物理地址 0 开始的区域。0xFAC00000 这个线性地址对应的页是 PDT 的物理页。
+  6. 开启分页，这时候 PC 所指向的虚拟地址 3G+（意思是 3G 以后），对应的线性地址是 0+，
+     对应的物理地址是 0+。
+  7. 加载新的 gdt，所有虚拟地址＝线性地址。所以 PC 所指向的虚拟地址 3G+（意思是 3G 以后），
+   	 对应的线性地址是 3G+，对应的物理地址是 0+。
+  8. 将线性地址 0-4M 的这个位置关掉。
+  9. 返回 kern_init 主函数
+  10. 物理内存管理部分还实现了 kmalloc，就是小块内存的分配，这里使用了 slob 的内存管理方法。
+      slob 的内存管理，主要体现在>=PGSIZE 的时候，会分配整数页，而<PGSIZE 的时候，
+      则分配一个 slob_block，每个 slob_block 管理 n 个 unit 大小的内存，每个 unit 大小等于
+      sizeof(slob_block)，第一个 unit 用来存放 slob_block 管理结构体，用户申请内存时把第二个
+      单元的地址返回。slob_block 内存放的是 unit 的个数，和下一个 slob_block 的地址。
+      这样，就有一个 slob_block 的双向链表能够管理小块内存分配了。如果没有符合分配大小的 slob_block,
+      就会新申请一页，加入空闲 slob_block 链表，然后重新循环查找。
+      大块内存管理（多个页），是通过 bigblock 结构体管理的，通过 slot_block 申请 bigblock
+      结构体的空间，bigblock 有一个指针，指向申请的页内存的开头部分，next 指向下一个 big_blcok。
+      组成一个单向链表，最后一个接点的 next 值为 NULL。
+  11. 数据结构
+      #+BEGIN_SRC C
+        struct slob_block {
+          int units;
+          struct slob_block *next;
+        };
+        struct bigblock {
+          int order;
+          void *pages;
+          struct bigblock *next;
+        };
+      #+END_SRC
+* interrupt
+  1. pic（可编程中断控制器）初始化。
+  2. idt（中断描述符表）初始化。
+* virtual memory management
+
+* 未完待续

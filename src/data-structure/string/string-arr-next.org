@@ -1,0 +1,78 @@
+#+TITLE: KMP 改进算法
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 描述
+  - 本程序是模式匹配算法的改进的改进，克努特-莫里斯-普拉特操作（KMP 算法）的改进版。
+  - 通过命令行传入参数，并输出。
+  - 输出数组 next 是从 0 开始计数的，数组所存索引也是从 0 开始计数的*/
+
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+    #include<string.h>
+    int main(int argc, char **argv)
+    {
+      int i, j;
+      int length = strlen(argv[1]);
+
+      int *arr = malloc( length * sizeof(int) );
+      /*-2 代表没有赋过值。*/
+      for(i=0; i < length; i++)
+        arr[i]=-2;
+      /*本次 for 循环中,i 是代表推进距离。*/
+      for(i=1; i < length; i++){
+
+        for(j=0; j < length-i; j++){
+
+          if(argv[1][j] == argv[1][j+i]){
+            if(arr[j+i+1] < j+1){
+              arr[j+i+1] = j+1;
+            }
+          }else{
+            break;
+          }
+        }
+      }
+      for(i=1;i<length;i++)
+        if(arr[i] == -2)
+          arr[i]=0;
+      arr[0] = -1;
+
+      /*以上部分与 string-arc.c 内容一毛一样，以下部分是根据 arr 数组得到
+       * 改进版的数组。*/
+
+      int *next = malloc( length * sizeof(int) );
+      for(i=0; i < length; i++)
+        next[i]=0;
+      int now_p;
+      int pre_p;
+
+      for(i=0; i<length; i++){
+        now_p=i;
+        pre_p=arr[now_p];
+        while(pre_p!=-1){
+          if(argv[1][now_p]!=argv[1][pre_p])
+            break;
+          now_p=pre_p;
+          pre_p=arr[pre_p];
+        }
+        next[i]=pre_p;
+      }
+
+      for(i=0;i<length;i++)
+        printf("next[%d]=%d\n",i+1,next[i]+1);
+
+      return 0;
+    }
+
+  #+END_SRC

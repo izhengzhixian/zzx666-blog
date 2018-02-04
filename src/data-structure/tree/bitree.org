@@ -1,0 +1,277 @@
+#+TITLE: 二叉树的生成
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 描述
+  - 本程序中的各个结点之间的连接是非顺序以链表方式实现的。
+  - 本程序的输入是通过队列，按层输入的。空格代表 NULL。
+  - 本程序要求用户输入一个字符串。
+  - 本程序的遍历都是通过递归实现的，只有按层遍历是通过队列实现的。
+  - 本程序的输入是以一个使用回车作为结束符号的字符串
+  - 字符串中空格代表这个位置是空，使用的按层输入
+
+  #+BEGIN_EXPORT html
+  <!--more-->
+  #+END_EXPORT
+
+
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+    #include<string.h>
+
+    #define TRUE 1
+    #define FALSE 0
+    #define OK 1
+    #define ERROR 0
+    #define INFEASIBLE -1
+    #define OVERFLOW -2
+    #define CINERROR -3
+    #define MAXSIZE 100
+
+    typedef int Status;
+    typedef char BiTElemType;
+
+    /*二叉树结构体*/
+    typedef struct Node {
+      BiTElemType data;
+      struct Node *lchild;
+      struct Node *rchild;
+    }BiTNode, BiTree;
+
+    /*创建二叉树*/
+    Status CreateBiTree(BiTree **ppT);
+    /*先序递归遍历*/
+    Status PreOrderTraverse(BiTree *pT, Status (*visit)(BiTNode e));
+    /*中序递归遍历*/
+    Status InOrderTraverse(BiTree *pT, Status (*visit)(BiTNode e));
+    /*后序递归遍历*/
+    Status PosOrderTraverse(BiTree *pT, Status (*visit)(BiTNode e));
+    /*按层遍历*/
+    Status LevelOrderTraverse(BiTree *pT, Status (*visit)(BiTNode e));
+
+    /*队列结点结构体*/
+    typedef struct QNode {
+      BiTNode *data;
+      struct QNode *prior;
+      struct QNode *next;
+    }QNode;
+
+    /*队列结构体*/
+    typedef struct {
+      QNode *head;
+      QNode *end;
+      int length;
+    }Queue;
+
+    /*初始化队列*/
+    Status InitQueue(Queue *pQ);
+    /*入队*/
+    Status EnQueue(Queue *pQ, BiTNode *e);
+    /*出队*/
+    Status DeQueue(Queue *pQ, BiTNode **pe);
+    /*销毁队列*/
+    Status DestroyQueue(Queue *pQ);
+
+    /*打印函数，在本程序中用作 visit 函数*/
+    Status Print(BiTNode e)
+    {
+      printf("%c",e.data);
+      return OK;
+    }
+
+    int main(int argc, char **argv)
+    {
+      BiTree *pT=NULL;
+      CreateBiTree(&pT);
+      //PreOrderTraverse(pT,Print);
+      //InOrderTraverse(pT,Print);
+      //PosOrderTraverse(pT,Print);
+      LevelOrderTraverse(pT,Print);
+      return 0;
+    }
+
+    Status CreateBiTree(BiTree **ppT)
+    {
+      char *s=malloc(MAXSIZE);
+      gets(s);
+      int len=strlen(s);
+      int i;
+      BiTNode *new;
+      BiTNode *test;
+      Queue Q;
+      InitQueue(&Q);
+      if(s[0]==' '||s[0]=='\0'){
+        return OK;
+      }
+      if(s[0]!='\0'){
+        new=malloc(sizeof(BiTNode));
+        *ppT=new;
+        new->data=s[0];
+        new->lchild=NULL;
+        new->rchild=NULL;
+        EnQueue(&Q,new);
+      }
+      for(i=1;i<len;i++){
+        DeQueue(&Q,&test);
+        if(s[i]==' ')
+          test->lchild=NULL;
+        else{
+          test->lchild=malloc(sizeof(BiTNode));
+          if(test->lchild==NULL)
+            exit(OVERFLOW);
+          test->lchild->data=s[i];
+          test->lchild->lchild=NULL;
+          test->lchild->rchild=NULL;
+          EnQueue(&Q,test->lchild);
+        }
+        i++;
+        if(i==len)
+          break;
+        if(s[i]==' ')
+          test->rchild=NULL;
+        else{
+          test->rchild=malloc(sizeof(BiTNode));
+          if(test->rchild==NULL)
+            exit(OVERFLOW);
+          test->rchild->data=s[i];
+          test->rchild->lchild=NULL;
+          test->rchild->rchild=NULL;
+          EnQueue(&Q,test->rchild);
+        }
+      }
+      DestroyQueue(&Q);
+
+      return OK;
+    }
+
+    Status PreOrderTraverse(BiTree *pT, Status (*visit)(BiTNode e))
+    {
+      if(pT==NULL)
+        return OK;
+      visit(*pT);
+      PreOrderTraverse(pT->lchild,visit);
+      PreOrderTraverse(pT->rchild,visit);
+
+      return OK;
+    }
+
+    Status InOrderTraverse(BiTree *pT, Status (*visit)(BiTNode e))
+    {
+      if(pT==NULL)
+        return OK;
+      PreOrderTraverse(pT->lchild,visit);
+      visit(*pT);
+      PreOrderTraverse(pT->rchild,visit);
+
+      return OK;
+
+    }
+
+    Status PosOrderTraverse(BiTree *pT, Status (*visit)(BiTNode e))
+    {
+      if(pT==NULL)
+        return OK;
+      PreOrderTraverse(pT->lchild,visit);
+      PreOrderTraverse(pT->rchild,visit);
+      visit(*pT);
+
+      return OK;
+    }
+
+    Status LevelOrderTraverse(BiTree *pT, Status (*visit)(BiTNode e))
+    {
+      if(pT==NULL)
+        return OK;
+      BiTNode flag;
+      Queue Q;
+      InitQueue(&Q);
+      EnQueue(&Q,&flag);
+      BiTNode *pe=pT;
+      while(pe!=&flag){
+        visit(*pe);
+        if(pe->lchild!=NULL)
+          EnQueue(&Q,pe->lchild);
+        if(pe->rchild!=NULL)
+          EnQueue(&Q,pe->rchild);
+        DeQueue(&Q,&pe);
+        if(pe==&flag){
+          EnQueue(&Q,&flag);
+          DeQueue(&Q,&pe);
+          if(pe==&flag)
+            return OK;
+        }
+      }
+
+      return OK;
+    }
+
+    Status InitQueue(Queue *pQ)
+    {
+      pQ->head=malloc(sizeof(QNode));
+      if(pQ->head==NULL)
+        exit(OVERFLOW);
+      pQ->head->prior=NULL;
+      pQ->head->next=NULL;
+      pQ->end=pQ->head;
+      pQ->length=0;
+      return OK;
+    }
+
+    Status EnQueue(Queue *pQ,BiTNode *e)
+    {
+
+      QNode *new=malloc(sizeof(QNode));
+      if(!new)
+        exit(OVERFLOW);
+      new->data=e;
+      pQ->end->next=new;
+      new->next=NULL;
+      new->prior=pQ->end;
+      pQ->end=new;
+      pQ->length++;
+
+      return OK;
+    }
+
+    Status DeQueue(Queue *pQ,BiTNode **pe)
+    {
+      if (pQ->length == 0){
+        *pe=NULL;
+        return ERROR;
+      }
+      QNode *ptest = pQ->head->next;
+      *pe=ptest->data;
+      if (pQ->length == 1) {
+        ptest->prior->next = NULL;
+        pQ->end = pQ->head;
+        pQ->length--;
+        free(ptest);
+        return OK;
+      }
+      ptest->prior->next = ptest->next;
+      ptest->next->prior = ptest->prior;
+      pQ->length--;
+      free(ptest);
+      return OK;
+    }
+
+    Status DestroyQueue(Queue *pQ)
+    {
+      QNode *test;
+      while(pQ->head){
+        test=pQ->head;
+        pQ->head=pQ->head->next;
+        free(test);
+      }
+      pQ->head=pQ->end=NULL;
+      pQ->length=0;
+      return OK;
+    }
+
+  #+END_SRC

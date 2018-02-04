@@ -1,0 +1,155 @@
+#+TITLE: 顺序栈
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 描述
+  - 这是一个栈的实现
+  - 使用的是双向顺序线性表的方式
+  - 线性表的尾部是栈顶，线性表的头部是栈底
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+
+    #define TRUE	1
+    #define FALSE	0
+    #define OK	1
+    #define ERROR	0
+    #define INFESIBLE	-1
+    #define OVERFLOW	-2
+    #define MAXSIZE	100
+    #define SIZEINCREMENT 20
+
+    typedef int Status;
+    typedef int ElemType;
+
+    /*定义栈结点*/
+    typedef struct Node {
+      ElemType data;
+
+    } LinkNode;
+
+    /*定义栈,size 是栈的总大小,top 是栈顶结点之上的索引，
+     * 同时与栈长度相等*/
+    typedef struct {
+      LinkNode *head;
+      int size;
+      int top;
+    } Stack;
+
+    Status InitStack(Stack * pS);	//栈的初始化
+    Status DestroyStack(Stack * pS);	//删除栈
+    Status ClearStack(Stack * pS);	//清空栈
+    Status StackEmpty(Stack S);	//判断栈是否为空
+    int StackLength(Stack S);	//返回栈的长度
+    Status GetTop(Stack S, LinkNode * pe);	//得到栈顶元素
+    Status Push(Stack * pS, LinkNode e);	//插入元素 e 为新的栈顶元素
+    Status Pop(Stack * pS, LinkNode * pe);	//删除栈顶元素，并用 pe 返回
+
+    Status StackTraverse(Stack S, Status(*visit) (LinkNode e));
+    /*从栈底到栈顶依次对 S 的每个数据元素调用函数 visit,
+     * 如果函数返回 ERROR，则遍历失败。*/
+
+    int main(int argc, char **argv)
+    {
+
+
+      return 0;
+    }
+
+
+    Status InitStack(Stack * pS)
+    {
+      pS->head = malloc(MAXSIZE * sizeof(LinkNode));
+      if (pS->head == NULL)
+        exit(OVERFLOW);
+      pS->size = MAXSIZE;
+      pS->top = 0;
+
+      return OK;
+    }
+
+    Status DestroyStack(Stack * pS)
+    {
+      free(pS->head);
+      pS->size = 0;
+      pS->top = 0;
+
+      return OK;
+    }
+
+    Status ClearStack(Stack * pS)
+    {
+      pS->top = 0;
+
+      return OK;
+    }
+
+    Status StackEmpty(Stack S)
+    {
+      if (S.top == 0)
+        return TRUE;
+
+      return FALSE;
+    }
+
+    int StackLength(Stack S)
+    {
+      return S.top;
+    }
+
+    Status GetTop(Stack S, LinkNode * pe)
+    {
+      if (S.top == 0)
+        return ERROR;
+
+      *pe = S.head[S.top - 1];
+
+      return OK;
+    }
+
+    Status Push(Stack * pS, LinkNode e)
+    {
+      if (pS->top >= pS->size) {
+
+        pS->head = realloc(pS->head,
+                           (pS->size + SIZEINCREMENT) * sizeof(LinkNode));
+        if (pS->head == NULL)
+          exit(OVERFLOW);
+
+        pS->size += SIZEINCREMENT;
+
+      }
+      pS->head[pS->top] = e;
+      pS->top++;
+
+      return OK;
+    }
+
+    Status Pop(Stack * pS, LinkNode * pe)
+    {
+      *pe = pS->head[pS->top - 1];
+      pS->top--;
+
+      return OK;
+    }
+
+    Status StackTraverse(Stack S, Status(*visit) (LinkNode e))
+    {
+      int j = S.top - 1;
+      for (; j >= 0; j--) {
+        if (visit(S.head[j]))
+          return ERROR;
+      }
+
+      return OK;
+    }
+
+  #+END_SRC

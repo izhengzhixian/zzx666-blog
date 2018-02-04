@@ -1,0 +1,14 @@
+#+TITLE: CentOS 导入 CA 证书
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: tools, CentOS, CA
+#+CATEGORIES: tools
+
+* CentOS 导入 CA 证书
+   由于某些需要在设置好 xxnet 的相关属性后，
+   通过 web 浏览器访问网站的时候总是报证书错误，
+   把相关的证书导入到浏览器里面也不行，如是有了以下的方法：
+   把 CA 放到/etc/pki/ca-trust/source/anchors，
+   在命令行运行 sudo update-ca-trust，这样证书就导入到系统中去了。
+   这样就可以顺利的使用 xxnet 了。

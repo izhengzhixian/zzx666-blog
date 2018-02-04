@@ -1,0 +1,239 @@
+#+TITLE: C 语言基本知识点
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: program, C
+#+CATEGORIES: program, C
+
+* 定义变量
+** 整型
+   八进制：0123
+
+   十六进制：0x123,0X123
+
+   浮点数的指数形式：1.23e5，1.23E5 都代表 1.23 乘以 10 的 5 次方
+
+   转义字符：\101(八进制 ascii) \x41(十六进制 ascii)
+
+   基本整型：int a=10;		//随操作系统而定，一般是 4 个字节
+
+   长整型：long int a=10; long a=10;	//占 4 个字节或 8 个字节
+
+   长长整形：long long a=10;long long int a=10;	//占位是 int 的二倍
+
+   短整型：short int a=10;short a=10;	//占 2 个字节
+
+   无符号基本型：unsigned int a=10;
+** 浮点型
+   单精度浮点型：float a=1.23;		//占 4 个字节
+
+   双精度浮点型：double a=1.23;	//占 8 个字节
+
+   长双精度浮点型：long double a=1.23;		//占 16 个字节
+   #+BEGIN_EXPORT html
+     <!--more-->
+   #+END_EXPORT
+** 浮点型
+   字符型：char c='A';
+
+   字符串：char s[15]="I LOVE YOU!";char s[15]={"I LOVE YOU!"};
+
+** 指针
+   普通指针：int *p;
+
+   指针数组：int *p[10];
+
+   指针指针：int **p;
+
+   函数指针：int  (*f)(int x);	//函数类型 （*函数指针名）（形参表列）
+
+   返回指针的函数：int *f(int x,int y);
+
+** 结构体
+   结构体定义：struct stu{int num; char name;int *p;}stu1,*stup=&stu1;
+
+   结构体变量引用：stu1.num;(*stup).num;stup->num;
+
+   结构体指针变量引用：*stu1.p;*(*stup).p;*stup->p;
+
+** 共用体
+   共用体定义：union stu{int num; char name;int *p;}stu1;
+
+   共用体与结构体的区别：只有一点不一样，内存。
+
+   结构体每个变量都有自己的存储空间，共用体所以变量都是同一个起始地址。
+
+** 枚举型
+   枚举类型：enum days{Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday};
+
+   枚举类型引用：enum days day;
+
+   枚举类型个人理解：枚举类型是类型的扩展，为了处理非数值数据。但是其本质仍然是数字，默认取值 0,1,2......
+
+   如果不想取这个值，可以对它赋值。enum days{Sunday,Monday,Tuesday=2,Wednesday,Thursday,Friday,Saturday};
+
+   赋值之后的变量的值会递增，枚举类型的取值域内的值也被作为变量，个人认为是 int 型；
+
+** 用户自定义
+
+   用户自定义类型：typedef int iinntt;//以后就可以用 iinntt 定义 int 型变量了。
+   #+BEGIN_SRC c
+     typedef struct{
+       int month;
+       int day;
+     }DATE;
+   #+END_SRC
+   可以用 DATE birthday;定义月日结构体变量。
+
+* 预编译
+  #+BEGIN_SRC C
+
+    #include<stdio.h>		//系统指定“文件包含目录”
+    #include"xiabibi.h"		//当前目录，系统指定“包含未见目录”
+    #define PI  3.1415926
+
+    #if 表达式
+    程序段 1
+    #elif 表达式
+    程序段 2
+    #else
+    程序段 3
+    #endif
+    //判断表达式
+
+    #ifdef 标识符
+    程序段 1
+    #else
+    程序段 2
+    #endif
+    //判断宏已定义
+
+    #ifdef 标识符
+    程序段 1
+    #else
+    程序段 2
+    #endif
+    //判断宏未定义
+
+  #+END_SRC
+
+* 函数
+** 输入输出函数
+   #+BEGIN_SRC C
+
+     #include<stdio.h>
+     int main(){
+       c=getchar();	//从键盘得到一个字符为变量赋值
+       putchar(c);		//输出一个字符
+       int s[10];scan("%s",s);	//得到一个字符串并赋值，以空格为结束字符
+       puts(s);	//参数为字符数组名，输出字符串
+       gets(s);	//输入字符串，赋值到 s，以回车为结束标志
+       return 0;
+     }
+   #+END_SRC
+** 字符串函数
+   #+BEGIN_SRC C
+
+     #include<string.h>
+     strcat(s1,s2);	//s1=s1+s2
+     strcpy(s1,s2);	//s1=s2
+     strcmp(s1,s2);	//s1>s2,返回大于 0.s1==s2,返回 0.s1<s2,返回小于 0
+     strlen(s);	//返回字符串 s 的长度
+     strupr(s);	//将 s 所有小写变为大写，并更新 s
+     strlwr(s);	//将 s 所有大写变为小写，并更新 s
+
+   #+END_SRC
+** 堆内存函数
+   #+BEGIN_SRC C
+
+     #include<malloc.h>
+     #include<stdlib.h>
+     int main(){
+       void *malloc(unsigned int size);
+       //申请 size 个字节的空间，并返回 void*类型，void*表示未确定类型的指针。
+       //c,c++规定，void*类型可以强制转换为任何其它类型的指针。
+       //例子：int *p=(int *)malloc(sizeof(int));
+
+       void *calloc(unsignrf int n,unsigned int size);
+       //分配 10*size 个字节的连续空间，返回 void*指针。
+       //例子；int *p=calloc(10,sizeof(int));
+
+       //void *realloc(voif *p,unsigned int size);//将原来 p 指向存储区的大小改为 size 个字节，可大可小。
+
+       //void free(void *p);//将 p 指向的存储空间释放。
+       return 0;
+     }
+
+   #+END_SRC
+* 文件
+** 文件打开
+   #+BEGIN_SRC C
+
+     #include<stdio.h>
+
+     FILE *fp;//定义了一个文件指针
+     fp=fopen("love.txt","r");//文件指针名=fopen(文件路径,使用文件方式);错误返回 NULL
+
+     // 方式：r(read),w(write),a(append),t(text，可省略不写),b(binary),+(读和写)
+
+     fclose(fp);//正确返回 0
+   #+END_SRC
+
+** 字符读写
+   #+BEGIN_SRC C
+     fgetc(fp);//返回读出字符，文件内部位置指针下移
+     fputc('a',fp);//把字符储存到文件末尾。正确返回该字符，错误返回 EOF(等价于-1)
+   #+END_SRC
+
+** 字符串读写
+   #+BEGIN_SRC C
+     fgets(str,n,fp);
+     /* fgets(字符数组名，n，文件指针)，从文件中读取 n-1 个字符存到字符数组 str 中
+      * 在读出 n-1 个字符之前，如果遇到了换行符或 EOF，则读出结束
+      * fgets 函数的返回值是字符数组的首地址
+      * 个人认为，fgets 与 fgetc 用的是同一个文件内部位置指针
+      * 个人认为，fputc,fputs 在 r+,gcc,情况下假如使用输入之前没有输出，
+      * 则使用的是文件内部头指针，否则使用的是尾指针 */
+
+     fputs("abcd",fp);//把 abcd 写入到 fp 所指的文件中。
+   #+END_SRC
+
+** 数据块读写
+   #+BEGIN_SRC C
+     fread(buffer,size,count,fp);
+     //从 fp 指向的文件中每次读取 size 字节，读取 count 次，存入 buffer 指针指向的内存空间中
+     fwrite(buffer,size,count,fp);
+     //从 buffer 指向的文件中每次读取 size 字节，读取 count 次，存入 fp 指针指向的内存空间中
+   #+END_SRC
+
+** 格式化读写
+   #+BEGIN_SRC C
+     fscanf(fp,格式字符串,输入表列);
+     fprintf(fp,格式字符串,输入表列);
+
+     // 例子：fsanf(fp,"%d %s",&i,s);
+   #+END_SRC
+
+** 文件定位
+   #+BEGIN_SRC C
+     rewind(文件指针);	//将文件内部位置指针移到文件首
+
+     fseek(文件指针,位移量,起始点);	//一般用于二进制文件，因为文本文件需要转换，容易错误
+
+     /* 位移量：为了使文件很大的时候不出错，所以常用 long 型，在数字后加 L,例如 100L
+      * 起始点：SEEK_SET(0)文件首,SEEK_CUR(1)当前位置,SEEK_END(2)文件末尾,本质上就是宏定义
+      * 例子：fseek(fp,100L,0); */
+   #+END_SRC
+
+** 文件检测函数
+   #+BEGIN_SRC C
+
+     feof(文件指针);
+     //判断文件是否处于文件结束位置，如果结束返回 1，否则返回 0。
+
+     ferror(文件指针);
+     //检查文件用输入输出函数进行读写时，是否产生错误，，有错返回 1，没错返回 0。
+
+     clearerr(文件指针);
+     //清除出错标志和文件结束标志，使它们为 0。
+   #+END_SRC

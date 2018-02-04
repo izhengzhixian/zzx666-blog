@@ -1,0 +1,47 @@
+#+TITLE: gnome3 扩展推荐
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: software, gnome3
+#+CATEGORIES: software
+
+* gnome3 扩展推荐
+[[https://extensions.gnome.org/extension/6/applications-menu/][Applications Menu]]
+
+[[https://extensions.gnome.org/extension/15/alternatetab/][AlternateTab]]
+
+[[https://extensions.gnome.org/extension/388/calc/][calc 能在 alt+f2 产生的命令框中输入=1+2 来计算]]
+
+[[https://extensions.gnome.org/extension/307/dash-to-dock/][Dash to Dock]]
+
+[[https://extensions.gnome.org/extension/885/dynamic-top-bar/][Dynamic Top Bar 在窗口最大化的时候顶栏变成透明]]
+
+[[https://extensions.gnome.org/extension/690/easyscreencast/][EasyScreenCast 简易录屏工具]]
+
+[[https://extensions.gnome.org/extension/55/media-player-indicator/][Media Player Indicator]]
+
+[[https://extensions.gnome.org/extension/771/proxy-switcher/][Proxy Switcher]]
+
+[[https://extensions.gnome.org/extension/104/netspeed/][NetSpeed]]
+
+[[https://extensions.gnome.org/extension/1085/simple-net-speed/][Simple net speed]]
+
+[[https://extensions.gnome.org/extension/512/wikipedia-search-provider/][Wikipedia Search Provider]]
+
+[[https://extensions.gnome.org/extension/19/user-themes/][User Themes]]
+
+[[https://extensions.gnome.org/extension/118/no-topleft-hot-corner/][Topleft Hot Corner 禁止左上角热键(win)]]
+
+[[https://extensions.gnome.org/extension/294/shellshape/][ShellShape 让窗口平铺的插件]]
+
+[[https://extensions.gnome.org/extension/28/gtile/][gtile 让整个屏幕按比例铺，如果 1/4，1/16]]
+
+[[https://extensions.gnome.org/extension/10/windownavigator/][Windownavigator 能够快速切换程序窗口和工作空间]]
+
+[[https://extensions.gnome.org/extension/495/topicons/][TopIcons 将一些位于通知区的图标放置于面板之上]]
+
+[[https://extensions.gnome.org/extension/818/battery-percentage/][Battery Percentage 右上角显示电池电量百分比]]
+
+[[https://extensions.gnome.org/extension/517/caffeine/][Caffeine 多一个咖啡图标，点击可切换两种状态：杯子冒热气时禁止熄屏，不冒热气时处于屏保自动的模式。而且当任一应用全屏时会自动禁止熄屏。]]
+
+[[https://extensions.gnome.org/extension/361/emacs-manager/][Emacs Manager 管理 emacs server]]

@@ -1,0 +1,149 @@
+#+TITLE: mpv 快捷键
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: software, mpv
+#+CATEGORIES: software, mpv
+
+* Keyboard Control
+  #+BEGIN_EXAMPLE
+    1. LEFT and RIGHT
+      Seek backward/forward 5 seconds. Shift+arrow does a 1 second exact seek (see --hr-seek).
+    2. UP and DOWN
+      Seek forward/backward 1 minute. Shift+arrow does a 5 second exact seek (see  --hr-seek).
+    3. Ctrl+LEFT and Ctrl+RIGHT
+      Seek to the previous/next subtitle. Subject to some restrictions and might not
+      always work; see  sub-seek command.
+    4. [ and ]
+      Decrease/increase current playback speed by 10%.
+    5. { and }
+      Halve/double current playback speed.
+    6. BACKSPACE
+      Reset playback speed to normal.
+    7. < and >
+      Go backward/forward in the playlist.
+    8. ENTER
+      Go forward in the playlist.
+    9. p / SPACE
+      Pause (pressing again unpauses).
+    10. .
+        Step forward. Pressing once will pause, every consecutive press will play one
+        frame and then go into pause mode again.
+    11. ,
+        Step backward. Pressing once will pause, every consecutive press will play one
+        frame in reverse and then go into pause mode again.
+    12. q
+        Stop playing and quit.
+    13. Q
+        Like q, but store the current playback position. Playing the same file
+        later will resume at the old playback position if possible.
+    14. / and *
+        Decrease/increase volume.
+    15. 9 and 0
+        Decrease/increase volume.
+    16. m
+        Mute sound.
+    17. _
+        Cycle through the available video tracks.
+    18. #
+        Cycle through the available audio tracks.
+    19. f
+        Toggle fullscreen (see also --fs).
+    20. ESC
+        Exit fullscreen mode.
+    21. T
+        Toggle stay-on-top (see also --ontop).
+    22. w and e
+        Decrease/increase pan-and-scan range.
+    23. o (also P)
+        Show progression bar, elapsed time and total duration on the OSD.
+    24. O
+        Toggle OSD states between normal and playback time/duration.
+    25. v
+        Toggle subtitle visibility.
+    26. j and J
+        Cycle through the available subtitles.
+    27. x and z
+        Adjust subtitle delay by +/- 0.1 seconds.
+    28. l
+        Set/clear A-B loop points. See ab-loop command for details.
+    29. L
+        Toggle infinite looping.
+    30. Ctrl + and Ctrl -
+        Adjust audio delay (A/V sync) by +/- 0.1 seconds.
+    31. u
+        Switch between applying no style overrides to SSA/ASS subtitles,
+        and overriding them almost completely with the normal subtitle style.
+        See  --sub-ass-override for more info.
+    32. V
+        Toggle subtitle VSFilter aspect compatibility mode.
+        See  --sub-ass-vsfilter-aspect-compat for more info.
+    33. r and t
+        Move subtitles up/down.
+    34. s
+        Take a screenshot.
+    35. S
+        Take a screenshot, without subtitles.
+        (Whether this works depends on VO driver support.)
+    36. Ctrl s
+        Take a screenshot, as the window shows it
+        (with subtitles, OSD, and scaled video).
+    37. PGUP and PGDWN
+        Seek to the beginning of the previous/next chapter.
+        In most cases, "previous" will actually go to the beginning
+        of the current chapter; see  --chapter-seek-threshold.
+    38. Shift+PGUP and Shift+PGDWN
+        Seek backward or forward by 10 minutes.
+        (This used to be mapped to PGUP/PGDWN without Shift.)
+    39. d
+        Activate/deactivate deinterlacer.
+    40. A
+        Cycle aspect ratio override.
+  #+END_EXAMPLE
+
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+
+  #+BEGIN_EXAMPLE
+    (The following keys are valid only when using a video output that supports the corresponding adjustment, or the software equalizer (--vf=eq).)
+
+    1. 1 and 2
+      Adjust contrast.
+    2. 3 and 4
+      Adjust brightness.
+    3. 5 and 6
+      Adjust gamma.
+    4. 7 and 8
+      Adjust saturation.
+    5. Alt+0 (and command+0 on OSX)
+      Resize video window to half its original size.
+    6. Alt+1 (and command+1 on OSX)
+      Resize video window to its original size.
+    7. Alt+2 (and command+2 on OSX)
+      Resize video window to double its original size.
+    8. command + f (OSX only)
+      Toggle fullscreen (see also --fs).
+  #+END_EXAMPLE
+
+  #+BEGIN_EXAMPLE
+    (The following keys are valid if you have a keyboard with multimedia keys.)
+
+    1. PAUSE
+      Pause.
+    2. STOP
+      Stop playing and quit.
+    3. PREVIOUS and NEXT
+      Seek backward/forward 1 minute.
+  #+END_EXAMPLE
+
+  If you miss some older key bindings, look at etc/restore-old-bindings.conf
+  in the mpv git repository.
+
+  #+BEGIN_EXAMPLE
+    Mouse Control
+    1. button 3 and button 4
+      Seek backward/forward 1 minute.
+    2. button 5 and button 6
+      Decrease/increase volume.
+  #+END_EXAMPLE

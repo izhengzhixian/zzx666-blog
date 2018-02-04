@@ -1,0 +1,20 @@
+* zzx666-blog
+
+我所有博客的 org mode 格式
+
+#+CAPTION: blog 目录布局
+| 目录     | 解释                                                       |
+|----------+------------------------------------------------------------|
+| src      | 存放 blog 的目录                                           |
+| hexo     | 存放 hexo 的配置                                           |
+| org2mode | 用 python3 写的一个管理工具，使用的时候可以链接到/usr/bin/ |
+
+#+CAPTION: src 目录布局
+| 目录           | 解释                     |
+|----------------+--------------------------|
+| data-structure | 数据结构                 |
+| program        | 编程笔记                 |
+| software       | 软件推荐                 |
+| tools          | 一些工具的教程和错误处理 |
+
+有错误请联系我：hongxuan.luo@foxmail.com

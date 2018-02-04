@@ -1,0 +1,254 @@
+#+TITLE: 最小生成树(kraskal,prim)
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 描述
+  这是求最小生成树的算法，其中有 kraskal 和 prim 算法
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+* 代码
+  #+BEGIN_SRC C
+    #include<stdio.h>
+    #include<stdlib.h>
+    #include<string.h>
+    /* 用户输入最多顶点的个数，但是不能太大
+     * 本地测试可以修改最大值是 717，超过就会出错 */
+    #define MAX_VERNUM 521
+    /* 顶点名字的最长长度 */
+    #define MAX_STRLEN 1024
+
+    /* 邻接矩阵结构体定义 */
+    typedef struct m_graph MGraph;
+    struct m_graph{
+      int vernum;			//图顶点数
+      int edgenum;		//图边数
+      char *vername[MAX_VERNUM];	//顶点的名字
+      int matrix[MAX_VERNUM][MAX_VERNUM];	//存边的矩阵
+    };
+
+    /* 接受一个大小，通过 calloc 申请内存，出错则退出 */
+    void * my_calloc(int size);
+    /* 参数：邻接矩阵，字符串
+     * 功能：搜索该字符串在邻接矩阵顶点名字数组中的索引
+     * 出错返回-1 */
+    int vername_index(MGraph *pmg, char *str);
+    /* 处理用户输入，返回一个邻接矩阵结构体 */
+    MGraph* userInput(void);
+    /* 销毁邻接矩阵结构体 */
+    void destroyMGraph(MGraph *pmg);
+
+    /* 程序核心，kraskal 算法 */
+    void kraskal(MGraph *pmg);
+    /* 程序次核心，辅助 kraskal 函数，返回所在集合 */
+    int Find(int *parent, int f);
+
+    /* 程序核心，prim 算法 */
+    void prim(MGraph *pmg);
+    /* 程序次核心，辅助 prim 算法，返回索引是否在本集合 */
+    int Exist(int *parent, int f);
+
+
+    int main(int argc, char **argv){
+
+      MGraph *pmg = userInput();
+      if(!pmg){
+        printf("用户输入错误\n");
+        exit(1);
+      }
+      /* 临时储存邻接矩阵结构体中的矩阵，以便 prim 使用 */
+      int matrix[MAX_VERNUM][MAX_VERNUM];
+      int i,j;
+      for(i=0; i < MAX_VERNUM; i++)
+        for(j=0; j < MAX_VERNUM; j++)
+          matrix[i][j] = pmg->matrix[i][j];
+
+      kraskal(pmg);
+
+      /* 恢复邻接矩阵 */
+      for(i=0; i < MAX_VERNUM; i++)
+        for(j=0; j < MAX_VERNUM; j++)
+          pmg->matrix[i][j] = matrix[i][j];
+
+      prim(pmg);
+
+      destroyMGraph(pmg);
+
+      return 0;
+    }
+
+    void *my_calloc(int size){
+      void *pv = calloc(size, 1);
+      if(pv)
+        return pv;
+      else
+        exit(1);
+    }
+
+    int vername_index(MGraph *pmg, char *str){
+      int i;
+      for(i=0; i < pmg->vernum; i++){
+        /* 有长度的比较，防止发生意外错误 */
+        if(! strncmp(pmg->vername[i], str, MAX_STRLEN) )
+          return i;
+      }
+      return -1;
+    }
+
+    MGraph * userInput(void){
+      int vernum;
+      int edgenum;
+      printf("请输入图的顶点个数和边的条数：");
+      scanf("%d%d",&vernum, &edgenum);
+      /* calloc 申请内存初始化为 0 */
+      MGraph *pmg = my_calloc(sizeof(MGraph));
+      pmg->vernum = vernum;
+      pmg->edgenum = edgenum;
+      int i;
+      printf("请输入图的顶点名字(可以任意字符串)：\n");
+      for(i=0; i<vernum; i++){
+        pmg->vername[i] = my_calloc(MAX_STRLEN);
+        scanf("%s", pmg->vername[i]);
+      }
+
+      char *str;
+      int row,column;
+      printf("请输入边和权值：\n");
+      for(i=0; i<edgenum; i++){
+        str = my_calloc(MAX_STRLEN);
+        scanf("%s",str);
+        row = vername_index(pmg, str);
+        scanf("%s",str);
+        column = vername_index(pmg, str);
+        /* 用户输入错误，返回 NULL */
+        if(row == -1 || column == -1)
+          return NULL;
+        scanf("%d",&pmg->matrix[row][column]);
+        /* 无向图，所以需要。如果有向图，则把这句注释掉 */
+        pmg->matrix[column][row] = pmg->matrix[row][column];
+      }
+      return pmg;
+    }
+
+    void destroyMGraph(MGraph *pmg){
+      int i;
+      for(i=0; i < MAX_VERNUM; i++)
+        free(pmg->vername[i]);
+      free(pmg);
+    }
+
+    void kraskal(MGraph *pmg){
+      if(!pmg)
+        return;
+      int *parent = my_calloc(sizeof(int) * pmg->vernum);
+      int i;
+      /* parent 数组用来表示集合，初始化为 0 */
+      for(i=0; i < pmg->vernum; i++)
+        parent[i] = 0;
+      int m;
+      int n;
+      int row;
+      int column;
+      int power;
+      int sum_power = 0;
+      printf("kruskal 输出结果：\n");
+      for(i=1;i < pmg->vernum;){
+        /* 初始化权值，99999999 相当于无穷大 */
+        power = 99999999;
+        for(m=0; m < pmg->vernum; m++)
+          for(n=0; n < pmg->vernum; n++){
+            if(pmg->matrix[m][n] < power && pmg->matrix[m][n]>0){
+              //用来存储最小权值所在位置
+              row = m;
+              column = n;
+              power = pmg->matrix[m][n];
+
+            }
+          }
+        pmg->matrix[row][column] = 99999999;
+        /* 搜索两个结点集合根部的位置 */
+        m = Find(parent, row);
+        n = Find(parent, column);
+        if(m != n){
+          /* 如果两个结点没在一个集合 */
+          parent[m] = n;
+          sum_power += power;
+          i++;
+          printf("%s-%s,%d\n",pmg->vername[row],
+                 pmg->vername[column],power);
+        }
+
+      }
+      free(parent);
+      printf("总权值是：%d\n",sum_power);
+    }
+
+
+    int Find(int *parent, int f){
+      while(parent[f] != 0)
+        f = parent[f];
+      return f;
+    }
+
+
+    void prim(MGraph *pmg){
+      if(!pmg)
+        return;
+
+      int *parent = my_calloc( (sizeof(int) + 1) * pmg->vernum);
+      int i;
+      /* parent 数组用来表示已经在生成树中的集合,parent[0]表示有效长度 */
+      for(i=0; i < pmg->vernum; i++)
+        parent[i] = 0;
+      /* 从第一个结点开始 */
+      parent[0] = 1;
+      int power;
+      int sum_power = 0;
+      /* 用来表示下次将要加入集合的顶点 */
+      int expect_ver = -1;
+      int row,column;
+      int j;
+      int n;
+      printf("prim 输出结果：\n");
+      printf("从%s 开始\n",pmg->vername[0]);
+      while(parent[0] < pmg->vernum){
+        power = 99999999;
+        for(n=1; n <= parent[0]; n++){
+
+          i = parent[n];
+          for(j=0; j < pmg->vernum; j++){
+            if(!Exist(parent, j) && pmg->matrix[i][j] < power
+               && pmg->matrix[i][j] > 0){
+              row = i;
+              column = j;
+              power = pmg->matrix[i][j];
+            }
+
+          }
+        }
+        sum_power += power;
+        parent[0]++;
+        parent[ parent[0] ] = column;
+        pmg->matrix[row][column] = 99999999;
+        printf("%s-%s,%d\n",pmg->vername[row],pmg->vername[column],power);
+
+      }
+
+      free(parent);
+
+      printf("总权值是：%d\n",sum_power);
+
+    }
+
+    int Exist(int *parent, int f){
+      int i;
+      for(i=1; i <= parent[0]; i++)
+        if(parent[i] == f )
+          return 1;
+      return 0;
+    }
+
+  #+END_SRC

@@ -1,0 +1,207 @@
+#+TITLE: 图的生成与遍历(DFS,BFS)
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 描述
+  1. 本程序是图的创建(无向图，但是可以把 createGraph 函数中对边的赋值的删掉第二句，
+     就变成有向图了)，深度优先遍历，广度优先遍历的实现。
+  2. 本程序输入，先输入一个数字 n，回车，代表创建图结点的个数。
+  3. 然后输入 n 个字母，回车，代表 n 个结点所储存的内容。
+  4. 接着输入边，用两个字母代替，不同的边之间用一个空格分开
+
+  例如:
+  #+BEGIN_EXAMPLE
+    8
+    12345678
+    12 23 34 45 67 78
+  #+END_EXAMPLE
+
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+    #include<string.h>
+
+    #define OK 1
+    #define ERROR 0
+    #define TRUE 1
+    #define FALSE 0
+    #define OVERFLOW -1
+    #define CINERROR -2
+
+    typedef int Status;
+    typedef char ElemType;
+
+    typedef struct {
+      ElemType *pelem;
+      int length;
+      int *matrix;
+
+    }MGraph;
+
+
+    /*图的创建*/
+    Status CreateGraph(MGraph *pMG);
+    /*深度搜索函数*/
+    Status DFSTraverse(MGraph MG, Status (*visit)(ElemType elem));
+    /*深度搜索子函数*/
+    Status DFS(MGraph MG, int v, int *flag, Status (*visit)(ElemType elem));
+    /*广度搜索函数*/
+    Status BFSTraverse(MGraph MG, Status (*visit)(ElemType elem));
+    /*打印函数，在本程序中作为 visit 函数使用*/
+    Status Print(ElemType elem)
+    {
+      printf("%c ",elem);
+      return OK;
+    }
+
+    int main(int argc, char **argv)
+    {
+      MGraph MG;
+      CreateGraph(&MG);
+      //DFSTraverse(MG , Print);
+      BFSTraverse(MG , Print);
+
+      return 0;
+
+    }
+
+    Status CreateGraph(MGraph *pMG)
+    {
+      int length;
+      scanf("%d",&length);
+      getchar();
+
+      pMG->pelem = malloc( (length + 1) * sizeof(ElemType) );
+      pMG->matrix = malloc(length * length * sizeof(int) );
+      ElemType *cinside = malloc( (length * length * 3 ) * sizeof(ElemType) );
+
+      if(!pMG->pelem || !pMG->matrix || !cinside)
+        exit(OVERFLOW);
+
+      pMG->length=length;
+
+      gets((pMG->pelem));
+      gets(cinside);
+
+      int i;
+      ElemType flag[2];
+      flag[1]='\0';
+      int pos_row;
+      int pos_col;
+
+      for(pos_row=0; pos_row<length; pos_row++)
+        for(pos_col=0; pos_col<length; pos_col++){
+          pMG->matrix[pos_row * length + pos_col] = 0;
+
+        }
+      for(i=0; cinside[i]!='\0'; i++){
+
+        flag[0]=cinside[i++];
+        pos_row = strstr(pMG->pelem, flag)  - pMG->pelem;
+        if(cinside[i]=='\0')
+          return ERROR;
+        flag[0]=cinside[i];
+        pos_col = strstr(pMG->pelem, flag)  - pMG->pelem;
+
+        if(pos_row<0 || pos_col<0)
+          exit(CINERROR);
+
+        /*对边的赋值*/
+        pMG->matrix[pos_row * length + pos_col] = 1;
+        pMG->matrix[pos_col * length + pos_row] = 1;
+
+        if( cinside[++i] != ' ')
+          break;
+      }
+      free(cinside);
+      return OK;
+
+    }
+
+    Status DFSTraverse(MGraph MG, Status (*visit)(ElemType elem))
+    {
+      int *flag = malloc( MG.length * sizeof(int) );
+      int i;
+      for(i=0; i<MG.length; i++)
+        flag[i] = FALSE;
+
+      for(i=0; i<MG.length; i++)
+        if(!flag[i])
+          DFS(MG, i, flag, visit);
+
+      return OK;
+    }
+
+    Status DFS(MGraph MG, int v, int *flag, Status (*visit)(ElemType elem))
+    {
+      if(visit(MG.pelem[v]) ){
+        flag[v]=OK;
+      }
+      int i;
+      for(i=0; i<MG.length; i++){
+        if(MG.matrix[v * MG.length * i]==0 || flag[i]==OK)
+          continue;
+        DFS(MG, i, flag, visit);
+      }
+
+      return OK;
+    }
+
+    Status BFSTraverse(MGraph MG, Status (*visit)(ElemType elem) )
+    {
+      if(MG.length==0)
+        return OK;
+
+      /*标志结点是否被访问过*/
+      int *flag = malloc( MG.length * sizeof(int) );
+      if(!flag)
+        exit(OVERFLOW);
+      int i;
+      int j;
+      for(i=0; i<MG.length; i++)
+        flag[i] = FALSE;
+      printf("LOVE\n");
+
+      /*用来模仿队列把上次遍历过的结点存入,bfs_len 代表数组中有意义的长度*/
+      int *bfs = malloc( MG.length * sizeof(int) );
+      if(!bfs)
+        exit(OVERFLOW);
+
+      /*第一个结点进队列*/
+
+      bfs[0]=0;
+      int bfs_len=1;
+
+      /*依次访问队列*/
+      for(i=0;i<bfs_len;i++){
+        if(visit(MG.pelem[bfs[i]])){
+          flag[bfs[i]]=1;
+
+        }else{
+          return ERROR;
+
+        }
+
+        /*找本结点的下一个没访问过的结点，并加入*/
+
+        for(j=0;j<MG.length;j++){
+          if( MG.matrix[ bfs[i] * MG.length + j ]==1 && flag[j]==0)
+            bfs[bfs_len++]=j;
+
+        }
+
+      }
+
+
+      return OK;
+    }
+
+  #+END_SRC

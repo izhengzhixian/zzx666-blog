@@ -1,0 +1,144 @@
+#+TITLE: 顺序队列
+#+DATE: <2018-02-03 Sat>
+#+LAYOUT: post
+#+OPTIONS: ^:{}
+#+TAGS: C, data-structure
+#+CATEGORIES: data-structure
+
+* 描述
+  这是一个队列的实现，使用的是双向循环顺序线性表的方式
+  #+BEGIN_EXPORT html
+    <!--more-->
+  #+END_EXPORT
+* 代码
+  #+BEGIN_SRC C
+
+    #include<stdio.h>
+    #include<stdlib.h>
+
+    #define TRUE	1
+    #define FALSE	0
+    #define OK	1
+    #define ERROR	0
+    #define INFESIBLE	-1
+    #define OVERFLOW	-2
+    #define MAXSIZE 100
+
+    typedef int Status;
+    typedef int ElemType;
+
+    /*定义队列结点*/
+    typedef struct Node {
+      ElemType data;
+
+    } LinkNode;
+
+    /*定义队列*/
+    typedef struct {
+      LinkNode *elem;
+      int head;
+      int end;
+      int size;
+    } Queue;
+
+    Status InitQueue(Queue * pQ);	//初始化队列
+    Status DestroyQueue(Queue * pQ);	//删除队列
+    Status ClearQueue(Queue * pQ);	//清空队列
+    Status QueueEmpey(Queue Q);	//判断队列 Q 是否为空
+    Status QueueLength(Queue Q);	//返回队列 Q 的长度
+    Status GetHead(Queue Q, LinkNode * pe);	//用 e 返回队头结点
+    Status EnQueue(Queue * pQ, LinkNode e);	//插入结点 e 为新的队尾结点
+    Status DeQueue(Queue * pQ, LinkNode * pe);	//删除队头结点，并指针 pe 返回结点
+    Status QueueTraverse(Queue Q, Status(*visit) (LinkNode e));
+    /* 从队头到队尾，依次调用 visit，如果返回 ERROR，则操作失败 */
+
+    int main(int argc, char **argv)
+    {
+
+      return 0;
+    }
+
+    Status InitQueue(Queue * pQ)
+    {
+      pQ->elem = malloc(MAXSIZE * sizeof(LinkNode));
+      if (pQ->elem == NULL)
+        exit(OVERFLOW);
+      pQ->head = 0;
+      pQ->end = 0;
+      pQ->size = MAXSIZE;
+
+      return OK;
+    }
+
+    Status DestroyQueue(Queue * pQ)
+    {
+      free(pQ->elem);
+      pQ->elem = NULL;
+      pQ->head = 0;
+      pQ->end = 0;
+      pQ->size = 0;
+
+      return OK;
+    }
+
+    Status ClearQueue(Queue * pQ)
+    {
+      pQ->elem = NULL;
+      pQ->head = 0;
+      pQ->end = 0;
+      pQ->size = MAXSIZE;
+
+      return OK;
+    }
+
+    Status QueueEmpey(Queue Q)
+    {
+      if (Q.head == Q.end)
+        return TRUE;
+      return FALSE;
+    }
+
+    Status QueueLength(Queue Q)
+    {
+      return (Q.end - Q.head + Q.size) % Q.size;
+    }
+
+    Status GetHead(Queue Q, LinkNode * pe)
+    {
+      *pe = Q.elem[Q.head];
+
+      return OK;
+    }
+
+    Status EnQueue(Queue * pQ, LinkNode e)
+    {
+      if ((pQ->end + 1) % pQ->size == pQ->head)
+        return ERROR;
+      pQ->elem[pQ->end] = e;
+      pQ->end = (pQ->end + 1) % pQ->size;
+
+      return OK;
+    }
+
+    Status DeQueue(Queue * pQ, LinkNode * pe)
+    {
+      if (pQ->head == pQ->end)
+        return ERROR;
+      *pe = pQ->elem[pQ->head];
+      pQ->head = (pQ->head + 1) % pQ->size;
+
+      return OK;
+    }
+
+    Status QueueTraverse(Queue Q, Status(*visit) (LinkNode e))
+    {
+      int j = Q.head;
+      for (; j != Q.end; j = (j + 1) % Q.size) {
+        if (!visit(Q.elem[j]))
+          return ERROR;
+      }
+
+      return OK;
+    }
+
+  #+END_SRC
